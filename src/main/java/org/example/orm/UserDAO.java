@@ -32,7 +32,6 @@ public class UserDAO {
         }
 
         ArrayList<User> users = new ArrayList<>();
-
         try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
             if (param != null && !param.isEmpty()) {
                 int paramIndex = 1;
@@ -79,6 +78,36 @@ public class UserDAO {
     }
 
     public User login(String email, String password) {
+        User user = null;
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM USER WHERE email = ? AND password = ?")) {
+            statement.setString(1, email);
+            statement.setString(2, password);
 
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    user = new User(resultSet.getInt("id"), resultSet.getString("firstName"), resultSet.getString("lastName"),
+                            resultSet.getString("email"), resultSet.getBoolean("isBlocked"));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Login error: " + e.getMessage());
+            e.getStackTrace();
+        }
+        return user;
+    }
+
+    public boolean blockUser(int id) {
+        boolean blocked = false;
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE USER SET isBlocked = true WHERE id = ?")) {
+            statement.setInt(1, id);
+
+            int updateCount = statement.executeUpdate();
+            if (updateCount == 1)
+                blocked = true;
+        } catch (SQLException e) {
+            System.err.println("BlockUser error: " + e.getMessage());
+            e.getStackTrace();
+        }
+        return blocked;
     }
 }
