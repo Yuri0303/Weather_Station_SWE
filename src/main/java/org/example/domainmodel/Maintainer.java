@@ -3,7 +3,7 @@ package org.example.domainmodel;
 public class Maintainer extends SystemUser{
     private Integer ticketTaken;
 
-    Maintainer(int id, String firstname, String lastName, String email) {
+    public Maintainer(int id, String firstname, String lastName, String email) {
         super(id, firstname, lastName, email);
         ticketTaken = null;
     }
