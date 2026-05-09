@@ -58,7 +58,7 @@ public class UserDAO {
     }
 
 
-    public boolean registerUser(String firstName, String lastName, String email, String password) {
+    public boolean registerUser(String firstName, String lastName, String email, String password) {//fixme decidere se tenere questa versione o quella tramite eccezione
         boolean registered = false;
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO USER (firstName, lastName, email, password, isBlocked) VALUES (?, ?, ?, ?, ?)")) {
             statement.setString(1, firstName);
@@ -78,7 +78,4 @@ public class UserDAO {
         return registered;
     }
 
-    public User login(String email, String password) {
-
-    }
 }
