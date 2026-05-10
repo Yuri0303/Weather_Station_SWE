@@ -54,11 +54,12 @@ public class MeasurementDAO {
         return measurements;
     }
 
-    public void addMeasurement(Measurement measurement) throws SQLException {
+    public void addMeasurement(Measurement measurement) throws SQLException {   //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO MEASUREMENT (value, dateTime, sensorId) VALUES (?, ?, ?)")) {
             statement.setFloat(1, measurement.getValue());
             statement.setTimestamp(2, java.sql.Timestamp.valueOf(measurement.getDateTime()));
             statement.setInt(3, measurement.getSensorId());
+
             statement.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error during measurement insert: " + e.getMessage());
