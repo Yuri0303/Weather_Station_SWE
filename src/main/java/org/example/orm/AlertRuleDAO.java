@@ -3,10 +3,7 @@ package org.example.orm;
 import org.example.domainmodel.AlertRule;
 import org.example.domainmodel.SensorType;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -21,14 +18,26 @@ public class AlertRuleDAO {
         }
     }
 
-    public void addAlertRule(SensorType sensorType, float lowerBound, float upperBound, int userId) throws SQLException{
+    public void addAlertRule(SensorType sensorType, Float lowerBound, Float upperBound, int userId) throws SQLException{
         String query = "INSERT INTO ALERTRULE (sensorType, lowerBound, upperBound, userId) VALUES (?,?,?,?)";
 
         try(PreparedStatement statement = connection.prepareStatement(query)){
+
             statement.setString(1, sensorType.name());
-            statement.setFloat(2, lowerBound);
-            statement.setFloat(3, upperBound);
             statement.setInt(4, userId);
+
+            if(lowerBound != null){
+                statement.setNull(2, Types.FLOAT);
+            }
+            else
+                statement.setFloat(2, lowerBound);
+
+            if(upperBound != null){
+                statement.setNull(3, Types.FLOAT);
+            }
+            else
+                statement.setFloat(3, upperBound);
+
 
             statement.executeUpdate();
         }catch (SQLException e){
