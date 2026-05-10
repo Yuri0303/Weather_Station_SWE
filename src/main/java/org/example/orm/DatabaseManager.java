@@ -5,8 +5,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseManager {
-    private static final String url = "jdbc:postgresql://localhost:5432/Greenhouse";
-    private static final String username = "Greenhouse_admin";
+    private static final String url = "jdbc:postgresql://localhost:5432/weather_station_db";
+    private static final String username = "Weather_S_admin";
     private static final String password = "admin";
     private static Connection connection = null;
 
