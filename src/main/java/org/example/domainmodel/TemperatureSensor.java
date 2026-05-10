@@ -4,8 +4,12 @@ import java.time.LocalDateTime;
 
 public class TemperatureSensor extends Sensor {
 
-    public TemperatureSensor(int id, SensorType sensorType, SensorState sensorState) {
-        super(id, sensorType, sensorState);
+    public TemperatureSensor(int id, SensorType sensorType) {
+        super(id, sensorType);
+    }
+
+    public TemperatureSensor(int id, int idLastMeasurement, SensorType sensorType, SensorState sensorState) {
+        super(id, idLastMeasurement, sensorType, sensorState);
     }
 
     @Override

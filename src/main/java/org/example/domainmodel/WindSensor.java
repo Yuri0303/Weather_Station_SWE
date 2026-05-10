@@ -1,10 +1,12 @@
 package org.example.domainmodel;
 
 public class WindSensor extends Sensor {
-    public WindSensor(int id, SensorType sensorType, SensorState sensorState) {
-        super(id, sensorType, sensorState);
+    public WindSensor(int id, SensorType sensorType) {
+        super(id, sensorType);
     }
-
+    public WindSensor(int id, int idLastMeasurement, SensorType sensorType, SensorState sensorState) {
+        super(id, idLastMeasurement, sensorType, sensorState);
+    }
     @Override
     public float measure() {
         double probability = Math.random();

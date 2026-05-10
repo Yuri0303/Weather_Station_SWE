@@ -2,14 +2,14 @@ package org.example.domainmodel;
 
 public class AlertRule {
     private int id;
-    private int UserId;
+    private int userId;
     private float lowerBound;
     private float upperBound;
     SensorType sensorType;
 
     public AlertRule(int id, int userId, float lowerBound, float upperBound, SensorType sensorType) {
         this.id = id;
-        UserId = userId;
+        this.userId = userId;
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.sensorType = sensorType;
@@ -28,11 +28,11 @@ public class AlertRule {
     }
 
     public int getUserId() {
-        return UserId;
+        return userId;
     }
 
     public void setUserId(int userId) {
-        UserId = userId;
+        this.userId = userId;
     }
 
     public float getLowerBound() {

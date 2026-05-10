@@ -78,25 +78,23 @@ public class NotificationDAO {
             }
 
             query.setLength(query.length() - 5);
-
+        }
             try(PreparedStatement statement = connection.prepareStatement(query.toString())){
 
                 statement.setBoolean(1, true);
 
-                int index = 2;
-                for(Integer i : ids){
-                    statement.setInt(index++, i);
+                if(ids != null && !ids.isEmpty()) {
+                    int paramIndex = 2;
+                    for (Integer i : ids) {//ids poteva essere nullo, ho spostato la chiusura dell'if in fondo
+                        statement.setInt(paramIndex++, i);
+                    }
                 }
-
-                int updated = statement.executeUpdate();
+                statement.executeUpdate();
             }catch (SQLException e){
                 System.err.println("Errore durante il settaggio di <notifica letta> ");
                 e.printStackTrace();
             }
         }
-        else
-            System.err.println("Attenzione: è stato dato un input vuoto per il settaggio di <notifica letta>");
-    }
 
 
 }
