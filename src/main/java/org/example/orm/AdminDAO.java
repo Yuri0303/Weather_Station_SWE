@@ -39,15 +39,36 @@ public class AdminDAO {
         return admin;
     }
 
-    public void resetDatabase(){
-
+    public boolean resetDatabase(String sql) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Errore durante il reset del Database: " + e.getMessage());
+        }
+        return false;
     }
 
-    public void createDatabase(){
-
+    public boolean createDatabase(String sql) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Errore durante la creazione del Database: " + e.getMessage());
+        }
+        return false;
     }
 
-    public void generateDefaultInstances(){
-
+    public boolean generateDefaultInstances(String sql) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Errore durante la generazione del Database default: " + e.getMessage());
+        }
+        return false;
     }
 }
