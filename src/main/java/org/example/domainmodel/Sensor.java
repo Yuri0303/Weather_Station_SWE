@@ -28,4 +28,8 @@ public abstract class Sensor extends Observable {
     }
 
     public abstract float measure();
+
+    public SensorType getSensorType(){
+        return sensorType;
+    }
 }

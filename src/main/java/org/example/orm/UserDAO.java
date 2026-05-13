@@ -57,7 +57,7 @@ public class UserDAO {
     }
 
 
-    public boolean registerUser(String firstName, String lastName, String email, String password) {
+    public boolean registerUser(String firstName, String lastName, String email, String password){
         boolean registered = false;
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO USER (firstName, lastName, email, password, isBlocked) VALUES (?, ?, ?, ?, ?)")) {
             statement.setString(1, firstName);
@@ -77,7 +77,7 @@ public class UserDAO {
         return registered;
     }
 
-    public User login(String email, String password) {
+    public User login(String email, String password){
         User user = null;
         try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM USER WHERE email = ? AND password = ?")) {
             statement.setString(1, email);

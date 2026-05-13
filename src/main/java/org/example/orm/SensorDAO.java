@@ -17,6 +17,10 @@ public class SensorDAO {
         }
     }
 
+    public SensorDAO(Connection connection){
+        this.connection = connection;
+    }
+
     public ArrayList<Sensor> getFaultySensors() throws SQLException {
         String query = "SELECT * FROM SENSOR WHERE sensorState = ?";
         ArrayList<Sensor> faultySensors = new ArrayList<>();

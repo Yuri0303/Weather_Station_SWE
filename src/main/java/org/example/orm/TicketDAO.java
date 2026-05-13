@@ -17,6 +17,10 @@ public class TicketDAO {
         }
     }
 
+    public TicketDAO(Connection connection){
+        this.connection = connection;
+    }
+
     public void addTicket(int sensorId) throws SQLException {   //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO TICKET (isOpen, closeDateTime, isTaken, maintainerId, sensorId) VALUES (?, ?, ?, ?, ?)")) {
             statement.setBoolean(1, true);
@@ -33,7 +37,7 @@ public class TicketDAO {
         }
     }
 
-    public ArrayList<Ticket> getOpenTickets() {
+    public ArrayList<Ticket> getOpenTickets(){
         ArrayList<Ticket> tickets = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM TICKET WHERE isOpen = ?")) {
@@ -56,10 +60,11 @@ public class TicketDAO {
         return tickets;
     }
 
-    public void takeTicket(int ticketId, int maintainerId) throws RuntimeException, SQLException {  //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
-        try (PreparedStatement statement = connection.prepareStatement("UPDATE TICKET SET maintainerId = ? WHERE id = ? AND maintainerId IS NULL")) {
+    public void takeTicket(int ticketId, int maintainerId) throws RuntimeException, SQLException{  //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE TICKET SET maintainerId = ?, isTaken = ? WHERE id = ? AND maintainerId IS NULL")) {
             statement.setInt(1, maintainerId);
-            statement.setInt(2, ticketId);
+            statement.setBoolean(2, true);
+            statement.setInt(3, ticketId);
             //FIXME: Servono le transazioni?
             int updateCount = statement.executeUpdate();
             if (updateCount != 1)
@@ -85,5 +90,29 @@ public class TicketDAO {
             e.getStackTrace();
             throw e;
         }
+    }
+
+    public Integer getSensorIdByTicket(int ticketId) throws SQLException{ //NOTA: è necessario che questa si propaghi, perché successivamente non può essere accettato un valore null
+        String query = "SELECT * FROM TICKET WHERE ticketId = ?";
+        Integer result = null;
+
+        try (PreparedStatement statement = connection.prepareStatement(query)){
+            statement.setInt(1, ticketId);
+
+            try(ResultSet resultSet = statement.executeQuery()){
+                if (resultSet.next()){
+                    Timestamp closeDateTime = resultSet.getTimestamp("closeDateTime");
+                    LocalDateTime closeDateTimeLocal = closeDateTime != null ? closeDateTime.toLocalDateTime() : null;
+                    Ticket ticket = new Ticket(resultSet.getInt("id"), resultSet.getInt("idSensor"), resultSet.getInt("idMaintainer"),
+                            resultSet.getBoolean("isOpen"), resultSet.getBoolean("isTaken"), closeDateTimeLocal);
+                    result = ticket.getIdSensor();
+                }
+            }
+        }catch (SQLException e){
+            System.err.println("Errore: recupero id del sensore di un ticket non riuscito");
+            e.getStackTrace();
+        }
+
+        return result;
     }
 }
