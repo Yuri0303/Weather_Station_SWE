@@ -31,7 +31,7 @@ public class AdminDAO {
                     admin = new Admin(resultSet.getInt("id"), resultSet.getString("firstName"), resultSet.getString("lastName"), resultSet.getString("email"));
                 }
             }
-        }catch (SQLException e){
+        } catch (SQLException e){
             System.err.println("Errore durante il login di Admin");
             e.getStackTrace();
         }

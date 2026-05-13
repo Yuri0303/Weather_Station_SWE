@@ -47,7 +47,7 @@ public class AlertRuleDAO {
     }
 
     //fixme funzione alternativa
-    public ArrayList<AlertRule> getAlertRules(Map<String, Object> param) throws SQLException{
+    public ArrayList<AlertRule> getAlertRules(Map<String, Object> param) {
         StringBuilder query = new StringBuilder("SELECT * FROM ALERTRULE");
 
         if(param != null && !param.isEmpty()){
@@ -80,7 +80,7 @@ public class AlertRuleDAO {
         return alertRules;
     }
 
-    public ArrayList<AlertRule> getAlertRules(SensorType sensorType) throws SQLException{
+    public ArrayList<AlertRule> getAlertRules(SensorType sensorType) {
         String query = "SELECT * FROM ALERTRULE WHERE sensorType = ?";
         ArrayList<AlertRule> alertRules = new ArrayList<>();
 

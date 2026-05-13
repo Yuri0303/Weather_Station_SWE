@@ -21,30 +21,51 @@ public class MeasurementDAO {
         }
     }
 
-    public ArrayList<Measurement> getMeasurements(Map<String, Object> param) {
+    public ArrayList<Measurement> getMeasurements(LocalDateTime startDate, LocalDateTime endDate, Map<String, Object> param) {
         StringBuilder query = new StringBuilder("SELECT * FROM MEASUREMENT");
+        query.append(" WHERE ");
         if (param != null && !param.isEmpty()) {
-            query.append(" WHERE ");
             for (String key : param.keySet()) {
                 query.append(key).append(" = ? AND ");
             }
-            query.setLength(query.length() - 5);
+            if (startDate == null && endDate == null)
+                query.setLength(query.length() - 5);
         }
 
+        if (startDate != null && endDate != null) {
+            query.append("dateTime > ? AND dateTime < ?");
+        } else if (startDate != null) {
+            query.append("dateTime > ?");
+        } else if (endDate != null) {
+            query.append("dateTime < ?");
+        }
+
+        if ((param == null || param.isEmpty()) && startDate == null && endDate == null) {
+            query.setLength(query.length() - 7); //remove WHERE
+        }
         ArrayList<Measurement> measurements = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
+            int paramIndex = 1;
             if (param != null && !param.isEmpty()) {
-                int paramIndex = 1;
                 for (Object value : param.values()) {
                     statement.setObject(paramIndex, value);
                     paramIndex++;
                 }
+            }
 
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    while (resultSet.next()) {
-                        measurements.add(new Measurement(resultSet.getInt("id"), resultSet.getInt("sensorId"), resultSet.getFloat("value"),
-                                resultSet.getObject("dateTime", LocalDateTime.class)));
-                    }
+            if (startDate != null && endDate != null) {
+                statement.setTimestamp(paramIndex++, java.sql.Timestamp.valueOf(startDate));
+                statement.setTimestamp(paramIndex++, java.sql.Timestamp.valueOf(endDate));
+            } else if (startDate != null) {
+                statement.setTimestamp(paramIndex++, java.sql.Timestamp.valueOf(startDate));
+            } else if (endDate != null) {
+                statement.setTimestamp(paramIndex++, java.sql.Timestamp.valueOf(endDate));
+            }
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    measurements.add(new Measurement(resultSet.getInt("id"), resultSet.getInt("sensorId"), resultSet.getFloat("value"),
+                            resultSet.getObject("dateTime", LocalDateTime.class)));
                 }
             }
         } catch (SQLException e) {
