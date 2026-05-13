@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS "AlertRule"
 (
     id         SERIAL PRIMARY KEY,
     sensorType VARCHAR(15),
-    upperBound FLOAT,
     lowerBound FLOAT,
+    upperBound FLOAT,
     userId INT NOT NULL,
     FOREIGN KEY (userId) REFERENCES "User" (id),
     CONSTRAINT atLeastOneBound CHECK ( lowerBound IS NOT NULL OR upperBound IS NOT NULL ),
@@ -64,8 +64,8 @@ CREATE TABLE IF NOT EXISTS "Sensor"
 (
     id                SERIAL PRIMARY KEY,
     sensorType        VARCHAR(15),
-    lastMeasurementId INT NOT NULL,
     sensorState       VARCHAR(15),
+    lastMeasurementId INT,
     FOREIGN KEY (lastMeasurementId) REFERENCES "Measurement" (id)
 );
 
