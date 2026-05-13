@@ -17,7 +17,7 @@ public class MaintainerDAO {
             System.err.println("Error: " + e.getMessage());
         }
     }
-    public Maintainer loginMaintainer(String email, String password) throws SQLException {
+    public Maintainer loginMaintainer(String email, String password) {
         Maintainer maintainer = null;
 
         try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM MAINTAINER WHERE email = ? AND password = ?")){
