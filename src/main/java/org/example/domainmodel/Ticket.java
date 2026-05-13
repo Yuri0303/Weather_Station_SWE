@@ -10,12 +10,12 @@ public class Ticket {
     private boolean isTaken;
     private LocalDateTime closeDateTime;
 
-    public Ticket(int id, int idSensor, LocalDateTime closeDateTime) {
+    public Ticket(int id, int idSensor, Integer idMaintainer, boolean isOpen, boolean isTaken, LocalDateTime closeDateTime) {
         this.id = id;
         this.idSensor = idSensor;
-        this.idMaintainer = null;
-        this.isOpen = true;
-        this.isTaken = false;
+        this.idMaintainer = idMaintainer;
+        this.isOpen = isOpen;
+        this.isTaken = isTaken;
         this.closeDateTime = closeDateTime;
     }
 

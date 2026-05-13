@@ -1,16 +1,21 @@
 package org.example.domainmodel;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 public class Notification {
     private int id;
-    private int idUser;
     private String message;
+    private LocalDateTime dateTime;
+    private int idUser;
     private boolean isRead;
 
-    public Notification(int id, int idUser, String message) {
+    public Notification(int id, String message, LocalDateTime dateTime, boolean isRead, int idUser) {
         this.id = id;
-        this.idUser = idUser;
         this.message = message;
-        this.isRead = false;
+        this.dateTime = dateTime;
+        this.idUser = idUser;
+        this.isRead = isRead;
     }
 
     public void markAsRead(){

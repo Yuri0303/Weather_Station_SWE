@@ -7,9 +7,9 @@ public class User extends SystemUser {
     private boolean isBlocked;
     private ArrayList<AlertRule> alertRules = new ArrayList<>();
 
-    User(int id, String firstname, String lastName, String email) {
+    public User(int id, String firstname, String lastName, String email, boolean isBlocked) {
         super(id, firstname, lastName, email);
-        isBlocked = false;
+        this.isBlocked = isBlocked;
     }
 
     public void createAlertRule(){
