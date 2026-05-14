@@ -21,25 +21,25 @@ public class SensorDAO {
         this.connection = connection;
     }
 
-    public ArrayList<Sensor> getFaultySensors() throws SQLException {
+    public ArrayList<Sensor> getSensorsByState(SensorState sensorState) throws SQLException {//fixme fixata come funzione generica
         String query = "SELECT * FROM SENSOR WHERE sensorState = ?";
         ArrayList<Sensor> faultySensors = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, SensorState.FAULTY.name());
+            statement.setString(1, sensorState.name());
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     int id = resultSet.getInt("id");
                     int lastMeas = resultSet.getInt("idLastMeasurement");
                     SensorType myType = SensorType.valueOf(resultSet.getString("sensorType"));
-                    SensorState state = SensorState.valueOf(resultSet.getString("sensorState"));
+                    SensorState myState = SensorState.valueOf(resultSet.getString("sensorState"));
 
                     Sensor sensor = switch (myType) {
-                        case HUMIDITY -> new HumiditySensor(id, lastMeas, myType, state);
-                        case WIND -> new WindSensor(id, lastMeas, myType, state);
-                        case TEMPERATURE -> new TemperatureSensor(id, lastMeas, myType, state);
-                        case PRESSURE -> new PressureSensor(id, lastMeas, myType, state);
+                        case HUMIDITY -> new HumiditySensor(id, lastMeas, myType, myState);
+                        case WIND -> new WindSensor(id, lastMeas, myType, myState);
+                        case TEMPERATURE -> new TemperatureSensor(id, lastMeas, myType, myState);
+                        case PRESSURE -> new PressureSensor(id, lastMeas, myType, myState);
                     };
 
                     faultySensors.add(sensor);

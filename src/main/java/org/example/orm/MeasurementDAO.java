@@ -21,7 +21,45 @@ public class MeasurementDAO {
         }
     }
 
-    public ArrayList<Measurement> getMeasurements(LocalDateTime startDate, LocalDateTime endDate, Map<String, Object> param) {
+    public MeasurementDAO(Connection connection){
+        this.connection = connection;
+    }
+
+    public ArrayList<Measurement> getMeasurements(Map<String, Object> param) {//FIXME (Giulio) la misurazione è identificata da una sola data, perché ne avevi messe due?
+        StringBuilder query = new StringBuilder("SELECT * FROM MEASUREMENT");
+        query.append(" WHERE ");
+        if (param != null && !param.isEmpty()) {
+            for (String key : param.keySet()) {
+                query.append(key).append(" = ? AND ");
+            }
+
+                query.setLength(query.length() - 5);
+        }
+
+        ArrayList<Measurement> measurements = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
+            int paramIndex = 1;
+            if (param != null && !param.isEmpty()) {
+                for (Object value : param.values()) {
+                    statement.setObject(paramIndex, value);
+                    paramIndex++;
+                }
+            }
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    measurements.add(new Measurement(resultSet.getInt("id"), resultSet.getInt("sensorId"), resultSet.getFloat("value"),
+                            resultSet.getObject("dateTime", LocalDateTime.class)));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error during measurements retrieve: " + e.getMessage());
+            e.getStackTrace();
+        }
+        return measurements;
+    }
+
+    public ArrayList<Measurement> getMeasurements(LocalDateTime startDate, LocalDateTime endDate, Map<String, Object> param) {//FIXME (Giulio) la misurazione è identificata da una sola data, perché ne avevi messe due?
         StringBuilder query = new StringBuilder("SELECT * FROM MEASUREMENT");
         query.append(" WHERE ");
         if (param != null && !param.isEmpty()) {
