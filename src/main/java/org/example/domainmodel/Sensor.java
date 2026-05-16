@@ -6,11 +6,6 @@ public abstract class Sensor extends Observable {
     protected SensorType sensorType;
     protected SensorState sensorState;
 
-    protected float lowerBound;
-
-    protected float upperBound;
-
-
     public Sensor(int id, SensorType sensorType) {//fixme si tiene questa modifica?
         this.id = id;
         this.idLastMeasurement = null;
@@ -27,7 +22,7 @@ public abstract class Sensor extends Observable {
 
     @Override
     public void notifyObservers() {
-        for (Observer o : observers){
+        for (Observer o : observers) {
             o.update(idLastMeasurement, sensorType);
         }
     }
@@ -40,8 +35,4 @@ public abstract class Sensor extends Observable {
 
     public Integer getIdLastMeasurement(){return idLastMeasurement;}
 
-
-    public abstract float getLowerBound();
-
-    public abstract float getUpperBound();
 }

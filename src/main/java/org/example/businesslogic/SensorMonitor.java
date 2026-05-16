@@ -11,22 +11,20 @@ import java.util.Map;
 public class SensorMonitor implements Observer {
 
     public ArrayList<AlertRule> verifyAlertRules(Measurement measurement, SensorType sensorType) {
+        ArrayList<AlertRule> violatedAlertRules = new ArrayList<>();
         try (AlertRuleDAO alertRuleDAO = new AlertRuleDAO()) {
-
             ArrayList<AlertRule> alertRules = alertRuleDAO.getAlertRules(sensorType);
-            ArrayList<AlertRule> violatedAlertRules = new ArrayList<>();
             for (AlertRule ar : alertRules) {
                 boolean violated = ar.isViolatedBy(measurement);
                 if (violated) {
                     violatedAlertRules.add(ar);
                 }
             }
-            return violatedAlertRules;
-        }catch (SQLException e){
-            System.err.println("Errore durante la verifica delle alert rules" + e.getMessage());
-            return null;
+        } catch (SQLException e) {
+            System.err.println("Error during verifyAlertRules: " + e.getMessage());
+            e.getStackTrace();
         }
-
+        return violatedAlertRules;
     }
 
     public ArrayList<Notification> createNotifications(ArrayList<AlertRule> ars, Measurement measurement, SensorType sensorType) {

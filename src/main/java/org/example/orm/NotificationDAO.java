@@ -68,8 +68,6 @@ public class NotificationDAO implements AutoCloseable {
     }
 
     public void setRead(int id) throws SQLException {
-        StringBuilder query = new StringBuilder("UPDATE NOTIFICATION SET isRead = ?");
-
         try(PreparedStatement statement = connection.prepareStatement("UPDATE NOTIFICATION SET isRead = TRUE WHERE id = ?")){
 
             statement.setInt(1, id);
