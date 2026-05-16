@@ -6,15 +6,21 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class SensorDAO {
+public class SensorDAO implements AutoCloseable{
     private Connection connection;
 
-    public SensorDAO(){
+    public SensorDAO() {
         try {
-            this.connection = DatabaseManager.getInstance().getConnection();
+            this.connection = DatabaseManager.getConnection();
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void close() throws SQLException{
+        if(connection != null)
+            this.connection.close();
     }
 
     public SensorDAO(Connection connection){

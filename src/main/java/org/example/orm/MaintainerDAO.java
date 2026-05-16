@@ -7,16 +7,23 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class MaintainerDAO {
+public class MaintainerDAO implements AutoCloseable{
     private Connection connection;
 
     public MaintainerDAO(){
         try {
-            this.connection = DatabaseManager.getInstance().getConnection();
+            this.connection = DatabaseManager.getConnection();
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
     }
+
+    @Override
+    public void close() throws SQLException{
+        if(connection != null)
+            this.connection.close();
+    }
+
     public Maintainer loginMaintainer(String email, String password) {
         Maintainer maintainer = null;
 

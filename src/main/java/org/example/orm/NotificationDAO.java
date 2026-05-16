@@ -9,15 +9,21 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-public class NotificationDAO {
+public class NotificationDAO implements AutoCloseable{
     private Connection connection;
 
     public NotificationDAO(){
         try {
-            this.connection = DatabaseManager.getInstance().getConnection();
+            this.connection = DatabaseManager.getConnection();
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void close() throws SQLException{
+        if(connection != null)
+            this.connection.close();
     }
 
     public ArrayList<Notification> viewUnreadNotification(int userId) throws SQLException{

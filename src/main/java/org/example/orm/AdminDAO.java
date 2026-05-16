@@ -7,15 +7,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class AdminDAO {
+public class AdminDAO implements AutoCloseable{
     private Connection connection;
 
     public AdminDAO(){
         try {
-            this.connection = DatabaseManager.getInstance().getConnection();
+            this.connection = DatabaseManager.getConnection();
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void close() throws SQLException{
+        if(connection != null)
+            this.connection.close();
     }
 
     public Admin login(String email, String password){

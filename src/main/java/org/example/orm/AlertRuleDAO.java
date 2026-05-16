@@ -7,15 +7,21 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class AlertRuleDAO {
+public class AlertRuleDAO implements AutoCloseable{
     private Connection connection;
 
     public AlertRuleDAO(){
         try {
-            this.connection = DatabaseManager.getInstance().getConnection();
+            this.connection = DatabaseManager.getConnection();
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void close() throws SQLException{
+        if(connection != null)
+            this.connection.close();
     }
 
     public void addAlertRule(SensorType sensorType, Float lowerBound, Float upperBound, int userId) throws SQLException{

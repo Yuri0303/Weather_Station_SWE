@@ -6,12 +6,12 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-public class TicketDAO {
+public class TicketDAO implements AutoCloseable{
     private Connection connection;
 
     public TicketDAO() {
         try {
-            connection = DatabaseManager.getInstance().getConnection();
+            connection = DatabaseManager.getConnection();
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
@@ -19,6 +19,12 @@ public class TicketDAO {
 
     public TicketDAO(Connection connection){
         this.connection = connection;
+    }
+
+    @Override
+    public void close() throws SQLException{
+        if(connection != null)
+            this.connection.close();
     }
 
     public void addTicket(int sensorId) throws SQLException {   //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione

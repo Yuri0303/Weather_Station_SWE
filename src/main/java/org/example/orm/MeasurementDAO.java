@@ -10,12 +10,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class MeasurementDAO {
+public class MeasurementDAO implements AutoCloseable{
     private Connection connection;
 
     public MeasurementDAO() {
         try {
-            connection = DatabaseManager.getInstance().getConnection();
+            connection = DatabaseManager.getConnection();
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
@@ -23,6 +23,12 @@ public class MeasurementDAO {
 
     public MeasurementDAO(Connection connection){
         this.connection = connection;
+    }
+
+    @Override
+    public void close() throws SQLException{
+        if(connection != null)
+            this.connection.close();
     }
 
     public ArrayList<Measurement> getMeasurements(Map<String, Object> param) {//FIXME (Giulio) la misurazione è identificata da una sola data, perché ne avevi messe due?
