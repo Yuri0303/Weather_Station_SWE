@@ -17,9 +17,6 @@ public class SensorDAO implements AutoCloseable {
         }
     }
 
-    public SensorDAO(Connection connection){
-        this.connection = connection;
-    }
 
     public ArrayList<Sensor> getSensorsByState(SensorState sensorState) throws SQLException {
         String query = "SELECT * FROM SENSOR WHERE sensorState = ?";

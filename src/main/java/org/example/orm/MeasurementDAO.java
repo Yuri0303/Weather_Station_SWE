@@ -21,10 +21,6 @@ public class MeasurementDAO implements AutoCloseable{
         }
     }
 
-    public MeasurementDAO(Connection connection){
-        this.connection = connection;
-    }
-
     @Override
     public void close() throws SQLException{
         if(connection != null)

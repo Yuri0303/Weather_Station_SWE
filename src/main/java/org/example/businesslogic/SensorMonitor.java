@@ -4,22 +4,29 @@ import org.example.domainmodel.*;
 import org.example.orm.AlertRuleDAO;
 import org.example.orm.MeasurementDAO;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
 
 public class SensorMonitor implements Observer {
 
     public ArrayList<AlertRule> verifyAlertRules(Measurement measurement, SensorType sensorType) {
-        AlertRuleDAO alertRuleDAO = new AlertRuleDAO();
-        ArrayList<AlertRule> alertRules = alertRuleDAO.getAlertRules(sensorType);
-        ArrayList<AlertRule> violatedAlertRules = new ArrayList<>();
-        for (AlertRule ar : alertRules) {
-            boolean violated = ar.isViolatedBy(measurement);
-            if (violated) {
-                violatedAlertRules.add(ar);
+        try (AlertRuleDAO alertRuleDAO = new AlertRuleDAO()) {
+
+            ArrayList<AlertRule> alertRules = alertRuleDAO.getAlertRules(sensorType);
+            ArrayList<AlertRule> violatedAlertRules = new ArrayList<>();
+            for (AlertRule ar : alertRules) {
+                boolean violated = ar.isViolatedBy(measurement);
+                if (violated) {
+                    violatedAlertRules.add(ar);
+                }
             }
+            return violatedAlertRules;
+        }catch (SQLException e){
+            System.err.println("Errore durante la verifica delle alert rules" + e.getMessage());
+            return null;
         }
-        return violatedAlertRules;
+
     }
 
     public ArrayList<Notification> createNotifications(ArrayList<AlertRule> ars, Measurement measurement, SensorType sensorType) {
@@ -28,10 +35,14 @@ public class SensorMonitor implements Observer {
 
     @Override
     public void update(int measurementId, SensorType sensorType) {
-        MeasurementDAO measurementDAO = new MeasurementDAO();
-        ArrayList<Measurement> measurements = measurementDAO.getMeasurements(null, null, Map.of("id", measurementId));
-        Measurement m = measurements.getFirst();
-        ArrayList<AlertRule> violatedAlertRules = verifyAlertRules(m, sensorType);
+        try (MeasurementDAO measurementDAO = new MeasurementDAO()) {
+            ArrayList<Measurement> measurements = measurementDAO.getMeasurements(null, null, Map.of("id", measurementId));
+            Measurement m = measurements.getFirst();
+            ArrayList<AlertRule> violatedAlertRules = verifyAlertRules(m, sensorType);
+
+        }catch (SQLException e){
+            System.err.println("Errore durante l'observer l'update di sensor monitor" + e.getMessage());
+        }
         //TODO: create notifications and save with NotificationDAO
     }
 }

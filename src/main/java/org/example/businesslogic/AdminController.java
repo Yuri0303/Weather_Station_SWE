@@ -13,28 +13,43 @@ import java.util.Map;
 
 public class AdminController {
     public ArrayList<Measurement> readDataHistory(LocalDateTime startDate, LocalDateTime endDate) {
-        MeasurementDAO measurementDAO = new MeasurementDAO();
-        return measurementDAO.getMeasurements(startDate, endDate, null);
+        try (MeasurementDAO measurementDAO = new MeasurementDAO()){
+            return measurementDAO.getMeasurements(startDate, endDate, null);
+        }catch (SQLException e){
+            System.err.println("Errore durante la lettura dello storico dei dati" + e.getMessage());
+            return null;
+        }
     }
 
     public ArrayList<Measurement> readDataHistory(LocalDateTime startDate, LocalDateTime endDate, int sensorId) {
-        MeasurementDAO measurementDAO = new MeasurementDAO();
-        return measurementDAO.getMeasurements(startDate, endDate, Map.of("sensorId", sensorId));
+        try (MeasurementDAO measurementDAO = new MeasurementDAO()) {
+            return measurementDAO.getMeasurements(startDate, endDate, Map.of("sensorId", sensorId));
+        }catch (SQLException e){
+            System.err.println("Errore durante la lettura dello storico dati" + e.getMessage());
+            return  null;
+        }
     }
 
     public ArrayList<User> viewUsers() {
-        UserDAO userDAO = new UserDAO();
-        return userDAO.getUsers(Map.of("isBlocked", false));
+
+        try (UserDAO userDAO = new UserDAO();) {
+            return userDAO.getUsers(Map.of("isBlocked", false));
+        }catch (SQLException e){
+            System.err.println("Errore durante la lettura degli utenti" + e.getMessage());
+            return  null;
+        }
     }
 
     public void blockUser(int userId) {
-        UserDAO userDAO = new UserDAO();
-        userDAO.blockUser(userId);
+        try (UserDAO userDAO = new UserDAO()) {
+            userDAO.blockUser(userId);
+        }catch (SQLException e){
+            System.err.println("Errore durante il bloccaggio di un utente" + e.getMessage());
+        }
     }
 
     public void openTicket(int sensorId) {
-        TicketDAO ticketDAO = new TicketDAO();
-        try {
+        try (TicketDAO ticketDAO = new TicketDAO()){
             ticketDAO.addTicket(sensorId);
         } catch (SQLException e) {
             System.err.println("Error during ticket opening: " + e.getMessage());

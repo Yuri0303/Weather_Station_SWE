@@ -118,8 +118,7 @@ public class SystemMonitor {
     }
 
     public void openTicket(int sensorId){
-        TicketDAO ticketDAO = new TicketDAO();
-        try {
+        try (TicketDAO ticketDAO = new TicketDAO()){
             ticketDAO.addTicket(sensorId);
         }catch (SQLException e){
             System.err.println("Errore durante l'apertura di un ticket per il sensore " + sensorId);
