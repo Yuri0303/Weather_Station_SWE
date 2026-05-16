@@ -6,7 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class SensorDAO implements AutoCloseable{
+public class SensorDAO implements AutoCloseable {
     private Connection connection;
 
     public SensorDAO() {
@@ -17,19 +17,13 @@ public class SensorDAO implements AutoCloseable{
         }
     }
 
-    @Override
-    public void close() throws SQLException{
-        if(connection != null)
-            this.connection.close();
-    }
-
     public SensorDAO(Connection connection){
         this.connection = connection;
     }
 
-    public ArrayList<Sensor> getSensorsByState(SensorState sensorState) throws SQLException {//fixme fixata come funzione generica
+    public ArrayList<Sensor> getSensorsByState(SensorState sensorState) throws SQLException {
         String query = "SELECT * FROM SENSOR WHERE sensorState = ?";
-        ArrayList<Sensor> faultySensors = new ArrayList<>();
+        ArrayList<Sensor> sensors = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, sensorState.name());
@@ -48,9 +42,9 @@ public class SensorDAO implements AutoCloseable{
                         case PRESSURE -> new PressureSensor(id, lastMeas, myType, myState);
                     };
 
-                    faultySensors.add(sensor);
+                    sensors.add(sensor);
                 }
-            }catch (SQLException e) {
+            } catch (SQLException e) {
                 System.err.println("Errore durante la query del recupero dei sensori guasti: " + e.getMessage());
                 e.getStackTrace();
             }
@@ -58,7 +52,7 @@ public class SensorDAO implements AutoCloseable{
             System.err.println("Errore durante il recupero dei sensori guasti: " + e.getMessage());
             e.getStackTrace();
         }
-        return faultySensors;
+        return sensors;
     }
 
     public ArrayList<Sensor> getSensors(Map<String, Object> param) throws SQLException {
@@ -137,5 +131,11 @@ public class SensorDAO implements AutoCloseable{
             System.err.println("Errore durante l'inserimento di un nuovo sensore");
             e.getStackTrace();
         }
+    }
+
+    @Override
+    public void close() throws SQLException{
+        if(connection != null)
+            this.connection.close();
     }
 }

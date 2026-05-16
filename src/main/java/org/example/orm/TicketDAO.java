@@ -21,12 +21,6 @@ public class TicketDAO implements AutoCloseable{
         this.connection = connection;
     }
 
-    @Override
-    public void close() throws SQLException{
-        if(connection != null)
-            this.connection.close();
-    }
-
     public void addTicket(int sensorId) throws SQLException {   //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO TICKET (isOpen, closeDateTime, isTaken, maintainerId, sensorId) VALUES (?, ?, ?, ?, ?)")) {
             statement.setBoolean(1, true);
@@ -120,5 +114,11 @@ public class TicketDAO implements AutoCloseable{
         }
 
         return result;
+    }
+
+    @Override
+    public void close() throws SQLException{
+        if(connection != null)
+            this.connection.close();
     }
 }
