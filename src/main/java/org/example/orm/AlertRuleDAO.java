@@ -24,7 +24,7 @@ public class AlertRuleDAO implements AutoCloseable{
             this.connection.close();
     }
 
-    public void addAlertRule(SensorType sensorType, Float lowerBound, Float upperBound, int userId) throws SQLException{
+    public void addAlertRule(int userId, SensorType sensorType, Float lowerBound, Float upperBound) throws SQLException{
         String query = "INSERT INTO ALERTRULE (sensorType, lowerBound, upperBound, userId) VALUES (?,?,?,?)";
 
         try(PreparedStatement statement = connection.prepareStatement(query)){
