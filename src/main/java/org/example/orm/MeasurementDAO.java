@@ -27,7 +27,7 @@ public class MeasurementDAO implements AutoCloseable{
             this.connection.close();
     }
 
-    public ArrayList<Measurement> getMeasurements(Map<String, Object> param) {//FIXME (Giulio) la misurazione è identificata da una sola data, perché ne avevi messe due?
+    public ArrayList<Measurement> getMeasurements(Map<String, Object> param) {
         StringBuilder query = new StringBuilder("SELECT * FROM MEASUREMENT");
         query.append(" WHERE ");
         if (param != null && !param.isEmpty()) {
@@ -61,45 +61,27 @@ public class MeasurementDAO implements AutoCloseable{
         return measurements;
     }
 
-    public ArrayList<Measurement> getMeasurements(LocalDateTime startDate, LocalDateTime endDate, Map<String, Object> param) {//FIXME (Giulio) la misurazione è identificata da una sola data, perché ne avevi messe due?
+    public ArrayList<Measurement> getMeasurements(LocalDateTime startDate, LocalDateTime endDate, Map<String, Object> param) {
         StringBuilder query = new StringBuilder("SELECT * FROM MEASUREMENT");
-        query.append(" WHERE ");
+        query.append(" WHERE dateTime > ? AND dateTime < ?");
         if (param != null && !param.isEmpty()) {
+            query.append(" AND ");
             for (String key : param.keySet()) {
                 query.append(key).append(" = ? AND ");
             }
-            if (startDate == null && endDate == null)
-                query.setLength(query.length() - 5);
+            query.setLength(query.length() - 5);
         }
 
-        if (startDate != null && endDate != null) {
-            query.append("dateTime > ? AND dateTime < ?");
-        } else if (startDate != null) {
-            query.append("dateTime > ?");
-        } else if (endDate != null) {
-            query.append("dateTime < ?");
-        }
-
-        if ((param == null || param.isEmpty()) && startDate == null && endDate == null) {
-            query.setLength(query.length() - 7); //remove WHERE
-        }
         ArrayList<Measurement> measurements = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
-            int paramIndex = 1;
+            statement.setTimestamp(1, java.sql.Timestamp.valueOf(startDate));
+            statement.setTimestamp(2, java.sql.Timestamp.valueOf(endDate));
+            int paramIndex = 3;
             if (param != null && !param.isEmpty()) {
                 for (Object value : param.values()) {
                     statement.setObject(paramIndex, value);
                     paramIndex++;
                 }
-            }
-
-            if (startDate != null && endDate != null) {
-                statement.setTimestamp(paramIndex++, java.sql.Timestamp.valueOf(startDate));
-                statement.setTimestamp(paramIndex++, java.sql.Timestamp.valueOf(endDate));
-            } else if (startDate != null) {
-                statement.setTimestamp(paramIndex++, java.sql.Timestamp.valueOf(startDate));
-            } else if (endDate != null) {
-                statement.setTimestamp(paramIndex++, java.sql.Timestamp.valueOf(endDate));
             }
 
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -115,13 +97,24 @@ public class MeasurementDAO implements AutoCloseable{
         return measurements;
     }
 
-    public void addMeasurement(Measurement measurement) throws SQLException {   //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
+    public int addMeasurement(Measurement measurement) throws SQLException { //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
+        int generatedId;
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO MEASUREMENT (value, dateTime, sensorId) VALUES (?, ?, ?)")) {
             statement.setFloat(1, measurement.getValue());
             statement.setTimestamp(2, java.sql.Timestamp.valueOf(measurement.getDateTime()));
             statement.setInt(3, measurement.getSensorId());
 
             statement.executeUpdate();
+
+            try(ResultSet rs = statement.getGeneratedKeys()) {
+                if (rs.next()) {
+                    generatedId = rs.getInt(1);
+                } else {
+                    throw new SQLException("Error in adding measurement: no PK generated");
+                }
+            }
+            return generatedId;
+
         } catch (SQLException e) {
             System.err.println("Error during measurement insert: " + e.getMessage());
             e.getStackTrace();

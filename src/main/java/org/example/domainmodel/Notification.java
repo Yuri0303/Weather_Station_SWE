@@ -1,6 +1,5 @@
 package org.example.domainmodel;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 public class Notification {
@@ -20,6 +19,14 @@ public class Notification {
 
     public void markAsRead(){
         this.isRead = true;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public int getId() {

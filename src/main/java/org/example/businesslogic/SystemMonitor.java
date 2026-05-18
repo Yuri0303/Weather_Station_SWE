@@ -12,6 +12,9 @@ import java.util.Map;
 
 public class SystemMonitor {
 
+    //TODO: metodo run di thread, dove si prende la lista dei sensori ACTIVE e nel caso apre i ticket
+    //TODO: sincronizza con semaforo così che solo un thread alla volta può accedere al database
+
     private boolean checkSensorValues(int sensorId) {
         try (SensorDAO sensorDAO = new SensorDAO(); MeasurementDAO measurementDAO = new MeasurementDAO()) {
             ArrayList<Sensor> sensors = sensorDAO.getSensors(Map.of("id", sensorId));
@@ -49,8 +52,6 @@ public class SystemMonitor {
         }
         return true;
     }
-
-    //TODO: metodo run di thread, dove si prende la lista dei sensori ACTIVE e nel caso apre i ticket
 
     public void openTicket(int sensorId){
         try (TicketDAO ticketDAO = new TicketDAO()) {

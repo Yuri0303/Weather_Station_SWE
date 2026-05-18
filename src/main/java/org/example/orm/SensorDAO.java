@@ -130,6 +130,20 @@ public class SensorDAO implements AutoCloseable {
         }
     }
 
+    public void updateLastMeasurement(int sensorId, int newLastMeasurementId) throws RuntimeException {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE SENSOR SET lastMeasurementId = ? WHERE id = ?")) {
+            statement.setInt(1, newLastMeasurementId);
+            statement.setInt(2, sensorId);
+            int updateCount = statement.executeUpdate();
+            if (updateCount != 1) {
+                throw new RuntimeException("Error in updating last measurement: updateCount = " + updateCount);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error in updating last measurement: " + e.getMessage());
+            e.getStackTrace();
+        }
+    }
+
     @Override
     public void close() throws SQLException{
         if(connection != null)

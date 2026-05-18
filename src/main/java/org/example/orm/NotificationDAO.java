@@ -20,6 +20,22 @@ public class NotificationDAO implements AutoCloseable {
         }
     }
 
+    public void registerNotification(Notification notification) throws RuntimeException {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO NOTIFICATION (message, isRead, userId, dateTime) VALUES (?, FALSE, ?, ?) ")) {
+            statement.setString(1, notification.getMessage());
+            statement.setInt(2, notification.getIdUser());
+            statement.setTimestamp(3, java.sql.Timestamp.valueOf(notification.getDateTime()));
+
+            int insertCount = statement.executeUpdate();
+            if (insertCount != 1) {
+                throw new RuntimeException("Errore nell'inserimento: insertCount = " + insertCount);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in createNotification: " + e.getMessage());
+            e.getStackTrace();
+        }
+    }
+
     public ArrayList<Notification> viewUnreadNotification(int userId) throws SQLException {
         String query = "SELECT * FROM NOTIFICATION WHERE userId = ? AND isRead = ?";
         ArrayList<Notification> notifications = new ArrayList<>();
@@ -63,7 +79,6 @@ public class NotificationDAO implements AutoCloseable {
             System.err.println("Errore durante il recupero dello storico delle notifiche");
             e.getStackTrace();
         }
-
         return notifications;
     }
 

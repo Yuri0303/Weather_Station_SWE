@@ -38,7 +38,7 @@ public class MaintainerDAO implements AutoCloseable{
             }
         }catch (SQLException e){
             System.err.println("Errore durante il login di maintainer");
-            e.printStackTrace();
+            e.getStackTrace();
         }
 
         return maintainer;
