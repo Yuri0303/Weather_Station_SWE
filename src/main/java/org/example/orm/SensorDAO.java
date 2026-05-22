@@ -19,7 +19,7 @@ public class SensorDAO implements AutoCloseable {
 
 
     public ArrayList<Sensor> getSensorsByState(SensorState sensorState) throws SQLException {
-        String query = "SELECT * FROM SENSOR WHERE sensorState = ?";
+        String query = "SELECT * FROM \"Sensor\" WHERE sensorState = ?";
         ArrayList<Sensor> sensors = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -53,7 +53,7 @@ public class SensorDAO implements AutoCloseable {
     }
 
     public ArrayList<Sensor> getSensors(Map<String, Object> param) throws SQLException {
-        StringBuilder query = new StringBuilder("SELECT * FROM SENSOR");
+        StringBuilder query = new StringBuilder("SELECT * FROM \"Sensor\"");
 
         if(param != null && !param.isEmpty()){
             query.append("WHERE");
@@ -102,7 +102,7 @@ public class SensorDAO implements AutoCloseable {
 
 
     public void changeSensorState(int sensorId, SensorState newState) throws SQLException{
-        String query = "UPDATE SENSOR SET sensorState = ? WHERE id = ?";
+        String query = "UPDATE \"Sensor\" SET sensorState = ? WHERE id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(query)){
             statement.setString(1, newState.name());
@@ -116,7 +116,7 @@ public class SensorDAO implements AutoCloseable {
     }
 
     public void addSensor(SensorType sensorType) throws SQLException{
-        String query = "INSERT INTO SENSOR (idLastMeasurement, sensorType, sensorState) VALUES (?, ?, ?)";
+        String query = "INSERT INTO \"Sensor\" (idLastMeasurement, sensorType, sensorState) VALUES (?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(query)){
             statement.setNull(1, Types.INTEGER);
@@ -131,7 +131,7 @@ public class SensorDAO implements AutoCloseable {
     }
 
     public void updateLastMeasurement(int sensorId, int newLastMeasurementId) throws RuntimeException {
-        try (PreparedStatement statement = connection.prepareStatement("UPDATE SENSOR SET lastMeasurementId = ? WHERE id = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Sensor\" SET lastMeasurementId = ? WHERE id = ?")) {
             statement.setInt(1, newLastMeasurementId);
             statement.setInt(2, sensorId);
             int updateCount = statement.executeUpdate();

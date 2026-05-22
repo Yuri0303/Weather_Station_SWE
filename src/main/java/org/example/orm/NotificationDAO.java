@@ -21,7 +21,7 @@ public class NotificationDAO implements AutoCloseable {
     }
 
     public void registerNotification(Notification notification) throws RuntimeException {
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO NOTIFICATION (message, isRead, userId, dateTime) VALUES (?, FALSE, ?, ?) ")) {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO \"Notification\" (message, isRead, userId, dateTime) VALUES (?, FALSE, ?, ?) ")) {
             statement.setString(1, notification.getMessage());
             statement.setInt(2, notification.getIdUser());
             statement.setTimestamp(3, java.sql.Timestamp.valueOf(notification.getDateTime()));
@@ -37,7 +37,7 @@ public class NotificationDAO implements AutoCloseable {
     }
 
     public ArrayList<Notification> viewUnreadNotification(int userId) throws SQLException {
-        String query = "SELECT * FROM NOTIFICATION WHERE userId = ? AND isRead = ?";
+        String query = "SELECT * FROM \"Notification\" WHERE userId = ? AND isRead = ?";
         ArrayList<Notification> notifications = new ArrayList<>();
 
         try(PreparedStatement statement = connection.prepareStatement(query)){
@@ -60,7 +60,7 @@ public class NotificationDAO implements AutoCloseable {
     }
 
     public ArrayList<Notification> viewNotificationHistory(int userId, int lastDays) throws SQLException{
-        String query = "SELECT * FROM NOTIFICATION WHERE userId = ? AND dateTime >= ?";
+        String query = "SELECT * FROM \"Notification\" WHERE userId = ? AND dateTime >= ?";
         ArrayList<Notification> notifications = new ArrayList<>();
 
         try(PreparedStatement statement = connection.prepareStatement(query)){
@@ -83,7 +83,7 @@ public class NotificationDAO implements AutoCloseable {
     }
 
     public void setRead(int id) throws SQLException {
-        try(PreparedStatement statement = connection.prepareStatement("UPDATE NOTIFICATION SET isRead = TRUE WHERE id = ?")){
+        try(PreparedStatement statement = connection.prepareStatement("UPDATE \"Notification\" SET isRead = TRUE WHERE id = ?")){
 
             statement.setInt(1, id);
             statement.executeUpdate();

@@ -27,7 +27,7 @@ public class MaintainerDAO implements AutoCloseable{
     public Maintainer loginMaintainer(String email, String password) {
         Maintainer maintainer = null;
 
-        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM MAINTAINER WHERE email = ? AND password = ?")){
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM \"Maintainer\" WHERE email = ? AND password = ?")){
             statement.setString(1, email);
             statement.setString(2, password);
 

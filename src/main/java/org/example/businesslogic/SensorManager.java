@@ -26,7 +26,7 @@ public class SensorManager extends Thread {
                 sensorDAO.updateLastMeasurement(s.getId(), lastMeasurementId);
             }
             sleep(Duration.ofMinutes(3));
-        } catch (SQLException e){
+        } catch (SQLException e) {
             System.err.println("Errore durante la registrazione di nuove misure - Errore del sensor manager");
             e.getStackTrace();
         } catch (InterruptedException e) {

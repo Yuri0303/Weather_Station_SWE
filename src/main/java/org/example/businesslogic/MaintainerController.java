@@ -57,7 +57,7 @@ public class MaintainerController {
         }
     }*/
 
-    public boolean changeSensor(int ticketId, int maintainerId) {
+    /*public boolean changeSensor(int ticketId, int maintainerId) {
         boolean success = false;
         try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
             conn.setAutoCommit(false);
@@ -140,7 +140,7 @@ public class MaintainerController {
             success = changeSensor(ticketId, maintainerId);
 
         return success;
-    }
+    }*/
 
     public void closeTicket(int ticketId, int maintainerId) throws SQLException{ //FIXME potrebbe non servire il maitainerId?
         try (TicketDAO ticketDAO = new TicketDAO()) {//è una funzione che viene chiamata all'interno di una transazione, quindi la connessione deve essere la solita

@@ -25,7 +25,7 @@ public class AlertRuleDAO implements AutoCloseable{
     }
 
     public void addAlertRule(int userId, SensorType sensorType, Float lowerBound, Float upperBound) throws SQLException{
-        String query = "INSERT INTO ALERTRULE (sensorType, lowerBound, upperBound, userId) VALUES (?,?,?,?)";
+        String query = "INSERT INTO \"AlertRule\" (sensorType, lowerBound, upperBound, userId) VALUES (?,?,?,?)";
 
         try(PreparedStatement statement = connection.prepareStatement(query)){
 
@@ -54,7 +54,7 @@ public class AlertRuleDAO implements AutoCloseable{
 
     //fixme funzione alternativa
     public ArrayList<AlertRule> getAlertRules(Map<String, Object> param) {
-        StringBuilder query = new StringBuilder("SELECT * FROM ALERTRULE");
+        StringBuilder query = new StringBuilder("SELECT * FROM \"AlertRule\"");
 
         if(param != null && !param.isEmpty()){
             query.append("WHERE");
@@ -87,7 +87,7 @@ public class AlertRuleDAO implements AutoCloseable{
     }
 
     public ArrayList<AlertRule> getAlertRules(SensorType sensorType) {
-        String query = "SELECT * FROM ALERTRULE WHERE sensorType = ?";
+        String query = "SELECT * FROM \"AlertRule\" WHERE sensorType = ?";
         ArrayList<AlertRule> alertRules = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(query)){

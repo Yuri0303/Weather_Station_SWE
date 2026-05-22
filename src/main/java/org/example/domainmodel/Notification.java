@@ -17,16 +17,8 @@ public class Notification {
         this.isRead = isRead;
     }
 
-    public void markAsRead(){
-        this.isRead = true;
-    }
-
     public LocalDateTime getDateTime() {
         return dateTime;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
     }
 
     public int getId() {
@@ -41,23 +33,7 @@ public class Notification {
         return idUser;
     }
 
-    public void setIdUser(int idUser) {
-        this.idUser = idUser;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public boolean isRead() {
-        return isRead;
-    }
-
-    public void setRead(boolean read) {
-        isRead = read;
     }
 }

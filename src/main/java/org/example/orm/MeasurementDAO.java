@@ -2,10 +2,7 @@ package org.example.orm;
 
 import org.example.domainmodel.Measurement;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
@@ -28,7 +25,7 @@ public class MeasurementDAO implements AutoCloseable{
     }
 
     public ArrayList<Measurement> getMeasurements(Map<String, Object> param) {
-        StringBuilder query = new StringBuilder("SELECT * FROM MEASUREMENT");
+        StringBuilder query = new StringBuilder("SELECT * FROM \"Measurement\"");
         query.append(" WHERE ");
         if (param != null && !param.isEmpty()) {
             for (String key : param.keySet()) {
@@ -62,8 +59,8 @@ public class MeasurementDAO implements AutoCloseable{
     }
 
     public ArrayList<Measurement> getMeasurements(LocalDateTime startDate, LocalDateTime endDate, Map<String, Object> param) {
-        StringBuilder query = new StringBuilder("SELECT * FROM MEASUREMENT");
-        query.append(" WHERE dateTime > ? AND dateTime < ?");
+        StringBuilder query = new StringBuilder("SELECT * FROM \"Measurement\"");
+        query.append(" WHERE dateTime >= ? AND dateTime <= ?");
         if (param != null && !param.isEmpty()) {
             query.append(" AND ");
             for (String key : param.keySet()) {
@@ -99,7 +96,7 @@ public class MeasurementDAO implements AutoCloseable{
 
     public int addMeasurement(Measurement measurement) throws SQLException { //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
         int generatedId;
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO MEASUREMENT (value, dateTime, sensorId) VALUES (?, ?, ?)")) {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO \"Measurement\" (value, dateTime, sensorId) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
             statement.setFloat(1, measurement.getValue());
             statement.setTimestamp(2, java.sql.Timestamp.valueOf(measurement.getDateTime()));
             statement.setInt(3, measurement.getSensorId());
@@ -121,4 +118,6 @@ public class MeasurementDAO implements AutoCloseable{
             throw e;
         }
     }
+
+
 }

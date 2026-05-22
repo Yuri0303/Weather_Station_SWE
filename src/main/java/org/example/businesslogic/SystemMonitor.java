@@ -19,7 +19,7 @@ public class SystemMonitor {
         try (SensorDAO sensorDAO = new SensorDAO(); MeasurementDAO measurementDAO = new MeasurementDAO()) {
             ArrayList<Sensor> sensors = sensorDAO.getSensors(Map.of("id", sensorId));
             Sensor sensor = sensors.getFirst();
-            ArrayList<Measurement> measurements = measurementDAO.getMeasurements(Map.of("id", sensor.getIdLastMeasurement()));
+            ArrayList<Measurement> measurements = measurementDAO.getMeasurements(Map.of("id", sensor.getLastMeasurementId()));
             Measurement measurement = measurements.getFirst();
             if (sensor instanceof TemperatureSensor) {
                 float lowerBound = 0F;

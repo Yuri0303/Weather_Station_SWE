@@ -19,7 +19,7 @@ public class TicketDAO implements AutoCloseable{
 
 
     public void addTicket(int sensorId) throws SQLException {   //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO TICKET (isOpen, closeDateTime, isTaken, maintainerId, sensorId) VALUES (?, ?, ?, ?, ?)")) {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO \"Ticket\" (isOpen, closeDateTime, isTaken, maintainerId, sensorId) VALUES (?, ?, ?, ?, ?)")) {
             statement.setBoolean(1, true);
             statement.setNull(2, Types.TIMESTAMP);
             statement.setBoolean(3, false);
@@ -37,7 +37,7 @@ public class TicketDAO implements AutoCloseable{
     public ArrayList<Ticket> getOpenTickets(){
         ArrayList<Ticket> tickets = new ArrayList<>();
 
-        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM TICKET WHERE isOpen = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM \"Ticket\" WHERE isOpen = ?")) {
             statement.setBoolean(1, true);
 
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -58,7 +58,7 @@ public class TicketDAO implements AutoCloseable{
     }
 
     public void takeTicket(int ticketId, int maintainerId) throws RuntimeException, SQLException{  //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
-        try (PreparedStatement statement = connection.prepareStatement("UPDATE TICKET SET maintainerId = ?, isTaken = ? WHERE id = ? AND maintainerId IS NULL")) {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Ticket\" SET maintainerId = ?, isTaken = ? WHERE id = ? AND maintainerId IS NULL")) {
             statement.setInt(1, maintainerId);
             statement.setBoolean(2, true);
             statement.setInt(3, ticketId);
@@ -75,7 +75,7 @@ public class TicketDAO implements AutoCloseable{
 
     //FIXME: perché maintainerId? Inoltre, ticketTaken non fa pare della tabella di Maintainer
     public void closeTicket(int ticketId, int maintainerId) throws SQLException {   //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
-        try (PreparedStatement statement = connection.prepareStatement("UPDATE TICKET SET isOpen = false, closeDateTime = ? WHERE id = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Ticket\" SET isOpen = false, closeDateTime = ? WHERE id = ?")) {
             statement.setTimestamp(1, java.sql.Timestamp.valueOf(LocalDateTime.now()));
             statement.setInt(2, ticketId);
 
@@ -90,7 +90,7 @@ public class TicketDAO implements AutoCloseable{
     }
 
     public Integer getSensorIdByTicket(int ticketId) throws SQLException{ //NOTA: è necessario che questa si propaghi, perché successivamente non può essere accettato un valore null
-        String query = "SELECT * FROM TICKET WHERE ticketId = ?";
+        String query = "SELECT * FROM \"Ticket\" WHERE id = ?";
         Integer result = null;
 
         try (PreparedStatement statement = connection.prepareStatement(query)){

@@ -27,10 +27,6 @@ public class Measurement {
         return sensorId;
     }
 
-    public void setSensorId(int sensorId) {
-        this.sensorId = sensorId;
-    }
-
     public float getValue() {
         return value;
     }
@@ -43,7 +39,20 @@ public class Measurement {
         return dateTime;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        return Float.compare(value, ((Measurement) obj).getValue()) == 0 && dateTime.equals(((Measurement) obj).dateTime);
+    }
+
+    @Override
+    public String toString() {
+        return "Measurement{" +
+                "value=" + value +
+                ", dateTime=" + dateTime +
+                '}';
     }
 }

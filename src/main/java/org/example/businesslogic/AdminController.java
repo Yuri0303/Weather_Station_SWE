@@ -31,12 +31,11 @@ public class AdminController {
     }
 
     public ArrayList<User> viewUsers() {
-
         try (UserDAO userDAO = new UserDAO();) {
             return userDAO.getUsers(Map.of("isBlocked", false));
         }catch (SQLException e){
             System.err.println("Errore durante la lettura degli utenti" + e.getMessage());
-            return  null;
+            return null;
         }
     }
 
@@ -55,4 +54,6 @@ public class AdminController {
             System.err.println("Error during ticket opening: " + e.getMessage());
         }
     }
+
+
 }

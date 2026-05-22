@@ -2,20 +2,20 @@ package org.example.domainmodel;
 
 public abstract class Sensor extends Observable {
     protected int id;
-    protected Integer idLastMeasurement;
+    protected Integer lastMeasurementId;
     protected SensorType sensorType;
     protected SensorState sensorState;
 
     public Sensor(int id, SensorType sensorType) {//fixme si tiene questa modifica?
         this.id = id;
-        this.idLastMeasurement = null;
+        this.lastMeasurementId = null;
         this.sensorType = sensorType;
         this.sensorState = SensorState.ACTIVE;
     }
 
-    public Sensor(int id, int idLastMeasurement, SensorType sensorType, SensorState sensorState) {
+    public Sensor(int id, int lastMeasurementId, SensorType sensorType, SensorState sensorState) {
         this.id = id;
-        this.idLastMeasurement = idLastMeasurement;
+        this.lastMeasurementId = lastMeasurementId;
         this.sensorType = sensorType;
         this.sensorState = sensorState;
     }
@@ -23,7 +23,7 @@ public abstract class Sensor extends Observable {
     @Override
     public void notifyObservers() {
         for (Observer o : observers) {
-            o.update(idLastMeasurement, sensorType);
+            o.update(lastMeasurementId, sensorType);
         }
     }
 
@@ -37,6 +37,6 @@ public abstract class Sensor extends Observable {
         return sensorType;
     }
 
-    public Integer getIdLastMeasurement(){return idLastMeasurement;}
+    public Integer getLastMeasurementId(){return lastMeasurementId;}
 
 }

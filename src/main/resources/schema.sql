@@ -48,6 +48,23 @@ CREATE TABLE IF NOT EXISTS "AlertRule"
     CONSTRAINT rightBoundOrder CHECK ( lowerBound < upperBound )
 );
 
+CREATE TABLE IF NOT EXISTS "Measurement"
+(
+    id       SERIAL PRIMARY KEY,
+    value    FLOAT,
+    dateTime TIMESTAMP,
+    sensorId INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "Sensor"
+(
+    id                SERIAL PRIMARY KEY,
+    sensorType        VARCHAR(15),
+    sensorState       VARCHAR(15),
+    lastMeasurementId INT,
+    FOREIGN KEY (lastMeasurementId) REFERENCES "Measurement" (id)
+);
+
 CREATE TABLE IF NOT EXISTS "Ticket"
 (
     id            SERIAL PRIMARY KEY,
@@ -60,20 +77,6 @@ CREATE TABLE IF NOT EXISTS "Ticket"
     FOREIGN KEY (sensorId) REFERENCES "Sensor" (id)
 );
 
-CREATE TABLE IF NOT EXISTS "Sensor"
-(
-    id                SERIAL PRIMARY KEY,
-    sensorType        VARCHAR(15),
-    sensorState       VARCHAR(15),
-    lastMeasurementId INT,
-    FOREIGN KEY (lastMeasurementId) REFERENCES "Measurement" (id)
-);
-
-CREATE TABLE IF NOT EXISTS "Measurement"
-(
-    id       SERIAL PRIMARY KEY,
-    value    FLOAT,
-    dateTime TIMESTAMP,
-    sensorId INT NOT NULL,
-    FOREIGN KEY (sensorId) REFERENCES "Sensor" (id)
-);
+ALTER TABLE "Measurement"
+ADD CONSTRAINT fk_sensorId
+FOREIGN KEY (sensorId) REFERENCES "Sensor" (id);

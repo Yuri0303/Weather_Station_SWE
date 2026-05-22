@@ -26,7 +26,7 @@ public class AdminDAO implements AutoCloseable{
 
     public Admin login(String email, String password){
         Admin admin = null;
-        String query = "SELECT * FROM ADMIN WHERE email = ? AND password = ?";
+        String query = "SELECT * FROM \"Admin\" WHERE email = ? AND password = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(query)){
             statement.setString(1, email);

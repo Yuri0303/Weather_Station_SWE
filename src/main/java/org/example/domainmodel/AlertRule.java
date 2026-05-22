@@ -3,8 +3,8 @@ package org.example.domainmodel;
 public class AlertRule {
     private int id;
     private int userId;
-    private float lowerBound;
-    private float upperBound;
+    private Float lowerBound;
+    private Float upperBound;
     SensorType sensorType;
 
     public AlertRule(int id, int userId, float lowerBound, float upperBound, SensorType sensorType) {
@@ -16,7 +16,13 @@ public class AlertRule {
     }
 
     public boolean isViolatedBy(Measurement m) {
-        return m.getValue() < lowerBound || m.getValue() > upperBound;
+        boolean violated = false;
+        if (lowerBound != null && m.getValue() < lowerBound) {
+            violated = true;
+        } else if (upperBound != null && m.getValue() > upperBound) {
+            violated = true;
+        }
+        return violated;
     }
 
     public int getId() {
@@ -31,24 +37,12 @@ public class AlertRule {
         return userId;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
     public float getLowerBound() {
         return lowerBound;
     }
 
-    public void setLowerBound(float lowerBound) {
-        this.lowerBound = lowerBound;
-    }
-
     public float getUpperBound() {
         return upperBound;
-    }
-
-    public void setUpperBound(float upperBound) {
-        this.upperBound = upperBound;
     }
 
     public SensorType getSensorType() {

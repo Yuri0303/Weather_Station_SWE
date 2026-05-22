@@ -21,7 +21,7 @@ public class UserDAO implements AutoCloseable {
     }
 
     public ArrayList<User> getUsers(Map<String, Object> param) {
-        StringBuilder query = new StringBuilder("SELECT * FROM USER");
+        StringBuilder query = new StringBuilder("SELECT * FROM \"User\"");
 
         if(param != null && !param.isEmpty()) {
             query.append(" WHERE ");
@@ -59,7 +59,7 @@ public class UserDAO implements AutoCloseable {
 
     public boolean registerUser(String firstName, String lastName, String email, String password){
         boolean registered = false;
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO USER (firstName, lastName, email, password, isBlocked) VALUES (?, ?, ?, ?, ?)")) {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO \"User\" (firstName, lastName, email, password, isBlocked) VALUES (?, ?, ?, ?, ?)")) {
             statement.setString(1, firstName);
             statement.setString(2, lastName);
             statement.setString(3, email);
@@ -79,7 +79,7 @@ public class UserDAO implements AutoCloseable {
 
     public User login(String email, String password){
         User user = null;
-        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM USER WHERE email = ? AND password = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM \"User\" WHERE email = ? AND password = ?")) {
             statement.setString(1, email);
             statement.setString(2, password);
 
@@ -98,7 +98,7 @@ public class UserDAO implements AutoCloseable {
 
     public boolean blockUser(int id) {
         boolean blocked = false;
-        try (PreparedStatement statement = connection.prepareStatement("UPDATE USER SET isBlocked = true WHERE id = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE \"User\" SET isBlocked = true WHERE id = ?")) {
             statement.setInt(1, id);
 
             int updateCount = statement.executeUpdate();

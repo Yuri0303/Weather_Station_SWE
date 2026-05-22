@@ -18,7 +18,7 @@ public class UserController {
             ArrayList<Sensor> sensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);
             Map<String, Object> map = new HashMap<>();
             for (Sensor it : sensors){
-                Integer idLastMeasurement = it.getIdLastMeasurement();
+                Integer idLastMeasurement = it.getLastMeasurementId();
                 if(idLastMeasurement != null)
                     map.put("id", idLastMeasurement);//mappa che contiene tutti gli id delle ultime misurazioni di tutti i sensori attivi. Potrebbero essere nulle
             }
@@ -35,7 +35,7 @@ public class UserController {
             ArrayList<Sensor> sensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);
             Map<String, Object> map = new HashMap<>();
             for (Sensor it : sensors){
-                Integer idLastMeasurement = it.getIdLastMeasurement();
+                Integer idLastMeasurement = it.getLastMeasurementId();
                 if(idLastMeasurement != null)
                     map.put("id", idLastMeasurement);//mappa che contiene tutti gli id delle ultime misurazioni di tutti i sensori attivi. Potrebbero essere nulle
             }

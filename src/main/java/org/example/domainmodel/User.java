@@ -11,24 +11,4 @@ public class User extends SystemUser {
         super(id, firstname, lastName, email);
         this.isBlocked = isBlocked;
     }
-
-    public void createAlertRule(){
-        //puzzo
-    }
-
-    public boolean isBlocked() {
-        return isBlocked;
-    }
-
-    public void setBlocked(boolean blocked) {
-        isBlocked = blocked;
-    }
-
-    public ArrayList<AlertRule> getAlertRules() {
-        return alertRules;
-    }
-
-    public void setAlertRules(ArrayList<AlertRule> alertRules) {
-        this.alertRules = alertRules;
-    }
 }
