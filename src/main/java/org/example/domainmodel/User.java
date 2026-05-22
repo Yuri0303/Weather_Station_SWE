@@ -11,4 +11,19 @@ public class User extends SystemUser {
         super(id, firstname, lastName, email);
         this.isBlocked = isBlocked;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        return email.equals(((User) obj).email); //basta la email, visto che è unica
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
 }

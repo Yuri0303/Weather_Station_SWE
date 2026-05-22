@@ -47,11 +47,12 @@ public class AdminController {
         }
     }
 
-    public void openTicket(int sensorId) {
+    public void openTicket(int sensorId) throws SQLException {
         try (TicketDAO ticketDAO = new TicketDAO()){
             ticketDAO.addTicket(sensorId);
         } catch (SQLException e) {
             System.err.println("Error during ticket opening: " + e.getMessage());
+            throw e;
         }
     }
 

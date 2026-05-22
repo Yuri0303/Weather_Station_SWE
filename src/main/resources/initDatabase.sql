@@ -10,10 +10,11 @@ INSERT INTO "Maintainer" (firstName, lastName, email, password)
 
 INSERT INTO "User" (firstName, lastName, email, password, isBlocked)
     VALUES
-        ('Samuele', 'Zanieri', 'samuelezanieri@test.it', '123', false),
+        ('Samuele', 'Zanieri', 'samuelezanieri@test.it', '123', true),
         ('Roberto', 'Chiesi', 'robertochiesi@test.it', '123', false),
         ('Gianluca', 'Taddei', 'gianlucataddei@test.it', '123', false),
-        ('Riccardo', 'Cappellini', 'riccardocappellini@test.it', '123', false);
+        ('Riccardo', 'Cappellini', 'riccardocappellini@test.it', '123', false),
+        ('Sasha', 'Bartoletti', 'sashabartoletti@test.it', '123', true);
 
 INSERT INTO "AlertRule" (sensorType, lowerBound, upperBound, userId)
     VALUES

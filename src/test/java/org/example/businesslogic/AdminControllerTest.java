@@ -1,26 +1,27 @@
 package org.example.businesslogic;
 
-import org.example.domainmodel.Admin;
 import org.example.domainmodel.Measurement;
+import org.example.domainmodel.Ticket;
+import org.example.domainmodel.User;
 import org.example.orm.MeasurementDAO;
+import org.example.orm.TicketDAO;
+import org.example.orm.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class AdminControllerTest {
 
-    Admin admin;
     AdminController  adminController;
 
     @BeforeEach
     void setUp() {
-        StaffLoginController loginAdminController = new StaffLoginController();
-        //admin = loginAdminController.adminLogin("giulionenini@test.it", "123");
         adminController = new AdminController();
 
         AdminDatabaseController adminDatabaseController = new AdminDatabaseController();
@@ -54,7 +55,7 @@ class AdminControllerTest {
             measurementDAO.addMeasurement(m3);
             measurementDAO.addMeasurement(m4);
         }catch (SQLException e){
-
+            System.err.println("Error in measurementDAO: " + e.getMessage());
         }
 
         ArrayList<Measurement> comparing = new ArrayList<>();
@@ -70,13 +71,66 @@ class AdminControllerTest {
 
     @Test
     void viewUsers() {
+        //creare oggetti user non bloccati nel database iniziale
+        User u1 = new User(2, "Roberto", "Chiesi", "robertochiesi@test.it", false);
+        User u2 = new User(3, "Gianluca", "Taddei", "gianlucataddei@test.it", false);
+        User u3 = new User(4, "Riccardo", "Cappellini", "riccardocappellini@test.it", false);
+
+        ArrayList<User> expectedUsers = new ArrayList<>();
+        expectedUsers.add(u1);
+        expectedUsers.add(u2);
+        expectedUsers.add(u3);
+
+        ArrayList<User> actualUsers = adminController.viewUsers();
+
+        assertIterableEquals(expectedUsers, actualUsers);
     }
 
     @Test
     void blockUser() {
+        ArrayList<User> users = new ArrayList<>();
+        try (UserDAO userDAO = new UserDAO()) {
+            users = userDAO.getUsers(Map.of("id", 2));
+            assertEquals(users.size(), 1); //Verifica che abbia prelevato un solo utente
+        } catch (SQLException e) {
+            System.err.println("Error in userDAO: " + e.getMessage());
+        }
+        User u1 = users.getFirst();
+        adminController.blockUser(u1.getId());
+        try (UserDAO userDAO = new UserDAO()) {
+            users = userDAO.getUsers(Map.of("id", 2));
+            assertEquals(users.size(), 1); //Verifica che abbia prelevato un solo utente
+        } catch (SQLException e) {
+            System.err.println("Error in userDAO: " + e.getMessage());
+        }
+        User actualUser = users.getFirst();   //Adesso dovrebbe essere bloccato
+        assertTrue(actualUser.isBlocked());
+
+        //Provo a bloccare nuovamente lo stesso utente per vedere cosa succede
+        adminController.blockUser(u1.getId());
+        try (UserDAO userDAO = new UserDAO()) {
+            users = userDAO.getUsers(Map.of("id", 2));
+            assertEquals(users.size(), 1); //Verifica che abbia prelevato un solo utente
+        } catch (SQLException e) {
+            System.err.println("Error in userDAO: " + e.getMessage());
+        }
+        actualUser = users.getFirst();   //Ora dovrebbe comunque essere bloccato
+        assertTrue(actualUser.isBlocked());
     }
 
     @Test
     void openTicket() {
+        Ticket expectedTicket = new Ticket(1, 2, null, true, false, null);
+        Ticket actualTicket;
+        try (TicketDAO ticketDAO = new TicketDAO()) {
+            adminController.openTicket(2);
+            actualTicket = ticketDAO.getOpenTickets().getFirst();
+            System.out.println(expectedTicket);
+            System.out.println(actualTicket);
+            assertEquals(expectedTicket, actualTicket);
+            assertThrows(SQLException.class, () -> adminController.openTicket(2)); //non può inserire un altro ticket se ce ne è già uno aperto
+        } catch (SQLException e) {
+            System.err.println("Error in ticketDAO: " + e.getMessage());
+        }
     }
 }

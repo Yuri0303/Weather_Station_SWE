@@ -19,6 +19,7 @@ public class TicketDAO implements AutoCloseable{
 
 
     public void addTicket(int sensorId) throws SQLException {   //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
+
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO \"Ticket\" (isOpen, closeDateTime, isTaken, maintainerId, sensorId) VALUES (?, ?, ?, ?, ?)")) {
             statement.setBoolean(1, true);
             statement.setNull(2, Types.TIMESTAMP);
@@ -28,8 +29,6 @@ public class TicketDAO implements AutoCloseable{
 
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error during ticket insert: " + e.getMessage());
-            e.getStackTrace();
             throw e;
         }
     }
@@ -44,7 +43,7 @@ public class TicketDAO implements AutoCloseable{
                 while (resultSet.next()) {
                     Timestamp closeDateTime = resultSet.getTimestamp("closeDateTime");
                     LocalDateTime closeDateTimeLocal = closeDateTime != null ? closeDateTime.toLocalDateTime() : null;
-                    tickets.add(new Ticket(resultSet.getInt("id"), resultSet.getInt("idSensor"), resultSet.getInt("idMaintainer"),
+                    tickets.add(new Ticket(resultSet.getInt("id"), resultSet.getInt("sensorId"), resultSet.getObject("maintainerId", Integer.class),
                             resultSet.getBoolean("isOpen"), resultSet.getBoolean("isTaken"), closeDateTimeLocal));
                 }
             }
@@ -100,9 +99,9 @@ public class TicketDAO implements AutoCloseable{
                 if (resultSet.next()){
                     Timestamp closeDateTime = resultSet.getTimestamp("closeDateTime");
                     LocalDateTime closeDateTimeLocal = closeDateTime != null ? closeDateTime.toLocalDateTime() : null;
-                    Ticket ticket = new Ticket(resultSet.getInt("id"), resultSet.getInt("idSensor"), resultSet.getInt("idMaintainer"),
+                    Ticket ticket = new Ticket(resultSet.getInt("id"), resultSet.getInt("sensorId"), resultSet.getInt("maintainerId"),
                             resultSet.getBoolean("isOpen"), resultSet.getBoolean("isTaken"), closeDateTimeLocal);
-                    result = ticket.getIdSensor();
+                    result = ticket.getSensorId();
                 }
             }
         }catch (SQLException e){

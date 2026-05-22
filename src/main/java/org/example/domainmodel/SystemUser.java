@@ -13,5 +13,7 @@ public abstract class SystemUser {
         this.email=email;
     }
 
-
+    public int getId() {
+        return id;
+    }
 }
