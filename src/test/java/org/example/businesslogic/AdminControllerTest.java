@@ -6,6 +6,7 @@ import org.example.domainmodel.User;
 import org.example.orm.MeasurementDAO;
 import org.example.orm.TicketDAO;
 import org.example.orm.UserDAO;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ class AdminControllerTest {
             adminDatabaseController.createDatabase();
             adminDatabaseController.defaultInstances();
         }catch (SQLException e){
-            System.out.println("Errore durante il reset del database");
+            System.err.println("Errore durante la creazione delle istanze del database");
         }
     }
 
@@ -91,7 +92,7 @@ class AdminControllerTest {
         ArrayList<User> users = new ArrayList<>();
         try (UserDAO userDAO = new UserDAO()) {
             users = userDAO.getUsers(Map.of("id", 2));
-            assertEquals(users.size(), 1); //Verifica che abbia prelevato un solo utente
+            assertEquals(1, users.size()); //Verifica che abbia prelevato un solo utente
         } catch (SQLException e) {
             System.err.println("Error in userDAO: " + e.getMessage());
         }
@@ -99,7 +100,7 @@ class AdminControllerTest {
         adminController.blockUser(u1.getId());
         try (UserDAO userDAO = new UserDAO()) {
             users = userDAO.getUsers(Map.of("id", 2));
-            assertEquals(users.size(), 1); //Verifica che abbia prelevato un solo utente
+            assertEquals(1, users.size()); //Verifica che abbia prelevato un solo utente
         } catch (SQLException e) {
             System.err.println("Error in userDAO: " + e.getMessage());
         }
@@ -110,7 +111,7 @@ class AdminControllerTest {
         adminController.blockUser(u1.getId());
         try (UserDAO userDAO = new UserDAO()) {
             users = userDAO.getUsers(Map.of("id", 2));
-            assertEquals(users.size(), 1); //Verifica che abbia prelevato un solo utente
+            assertEquals(1, users.size()); //Verifica che abbia prelevato un solo utente
         } catch (SQLException e) {
             System.err.println("Error in userDAO: " + e.getMessage());
         }
@@ -132,5 +133,11 @@ class AdminControllerTest {
         } catch (SQLException e) {
             System.err.println("Error in ticketDAO: " + e.getMessage());
         }
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        AdminDatabaseController adminDatabaseController = new AdminDatabaseController();
+        adminDatabaseController.resetDatabase();
     }
 }

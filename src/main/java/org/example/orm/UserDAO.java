@@ -57,7 +57,7 @@ public class UserDAO implements AutoCloseable {
     }
 
 
-    public boolean registerUser(String firstName, String lastName, String email, String password){
+    public boolean registerUser(String firstName, String lastName, String email, String password) {
         boolean registered = false;
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO \"User\" (firstName, lastName, email, password, isBlocked) VALUES (?, ?, ?, ?, ?)")) {
             statement.setString(1, firstName);
@@ -79,7 +79,7 @@ public class UserDAO implements AutoCloseable {
 
     public User login(String email, String password){
         User user = null;
-        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM \"User\" WHERE email = ? AND password = ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM \"User\" WHERE email = ? AND password = ? AND isblocked = FALSE")) {
             statement.setString(1, email);
             statement.setString(2, password);
 

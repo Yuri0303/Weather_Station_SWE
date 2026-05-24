@@ -5,7 +5,7 @@ INSERT INTO "Admin" (firstName, lastName, email, password)
 
 INSERT INTO "Maintainer" (firstName, lastName, email, password)
     VALUES
-        ('Damiano', 'Nencini', 'damianochiesi@test.it', '123'),
+        ('Damiano', 'Nencini', 'damianonencini@test.it', '123'),
         ('Dario', 'Bartoletti','dariobartoletti@test.it', '123');
 
 INSERT INTO "User" (firstName, lastName, email, password, isBlocked)

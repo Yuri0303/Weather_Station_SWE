@@ -8,7 +8,9 @@ import org.example.orm.MaintainerDAO;
 import java.sql.SQLException;
 
 public class StaffLoginController {
+
     public StaffLoginController() {}
+
     public Admin adminLogin(String email, String password) {
         try (AdminDAO adminDAO = new AdminDAO()) {
             return adminDAO.login(email, password);
@@ -18,13 +20,13 @@ public class StaffLoginController {
         }
     }
 
-    public Maintainer loginMaintainer(String email, String password) {
+    public Maintainer maintainerLogin(String email, String password) {
         try(MaintainerDAO maintainerDAO = new MaintainerDAO()){
             return maintainerDAO.loginMaintainer(email, password);
         }catch (SQLException e) {
             System.err.println("Errore durante il login maintainer: " + e.getMessage());
             return null;
         }
-
     }
+
 }

@@ -56,7 +56,7 @@ public class TicketDAO implements AutoCloseable{
         return tickets;
     }
 
-    public void takeTicket(int ticketId, int maintainerId) throws RuntimeException, SQLException{  //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
+    public void takeTicket(int ticketId, int maintainerId) throws RuntimeException, SQLException {  //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
         try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Ticket\" SET maintainerId = ?, isTaken = ? WHERE id = ? AND maintainerId IS NULL")) {
             statement.setInt(1, maintainerId);
             statement.setBoolean(2, true);
