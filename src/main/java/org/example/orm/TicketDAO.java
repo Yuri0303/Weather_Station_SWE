@@ -56,12 +56,11 @@ public class TicketDAO implements AutoCloseable{
         return tickets;
     }
 
-    public void takeTicket(int ticketId, int maintainerId) throws RuntimeException, SQLException {  //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
-        try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Ticket\" SET maintainerId = ?, isTaken = ? WHERE id = ? AND maintainerId IS NULL")) {
+    public void takeTicket(int ticketId, int maintainerId) throws SQLException{
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Ticket\" SET maintainerId = ?, isTaken = ? WHERE id = ? AND maintainerId IS NULL AND isTaken = false")) {
             statement.setInt(1, maintainerId);
             statement.setBoolean(2, true);
             statement.setInt(3, ticketId);
-            //FIXME: Servono le transazioni?
             int updateCount = statement.executeUpdate();
             if (updateCount != 1)
                 throw new SQLException("Ticket not found or update failed. Rows affected: " + updateCount);
@@ -72,9 +71,8 @@ public class TicketDAO implements AutoCloseable{
         }
     }
 
-    //FIXME: perché maintainerId? Inoltre, ticketTaken non fa pare della tabella di Maintainer
-    public void closeTicket(int ticketId, int maintainerId) throws SQLException {   //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
-        try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Ticket\" SET isOpen = false, closeDateTime = ? WHERE id = ?")) {
+    public void closeTicket(int ticketId) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Ticket\" SET isOpen = false, closeDateTime = ? WHERE id = ? AND isOpen = true")) {
             statement.setTimestamp(1, java.sql.Timestamp.valueOf(LocalDateTime.now()));
             statement.setInt(2, ticketId);
 

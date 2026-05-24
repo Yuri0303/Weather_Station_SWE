@@ -2,7 +2,7 @@ package org.example.domainmodel;
 
 public class HumiditySensor extends Sensor {
 
-    public HumiditySensor(int id, int idLastMeasurement, SensorType sensorType, SensorState sensorState) {
+    public HumiditySensor(int id, Integer idLastMeasurement, SensorType sensorType, SensorState sensorState) {
         super(id, idLastMeasurement, sensorType, sensorState);
     }
     @Override

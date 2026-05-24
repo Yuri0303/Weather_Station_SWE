@@ -18,14 +18,14 @@ public class UserController {
             ArrayList<Sensor> sensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);
             Map<String, Object> map = new HashMap<>();
             for (Sensor it : sensors){
-                Integer idLastMeasurement = it.getLastMeasurementId();
-                if(idLastMeasurement != null)
-                    map.put("id", idLastMeasurement);//mappa che contiene tutti gli id delle ultime misurazioni di tutti i sensori attivi. Potrebbero essere nulle
+                Integer lastMeasurementId = it.getLastMeasurementId();
+                if(lastMeasurementId != null)
+                    map.put("id", lastMeasurementId);//mappa che contiene tutti gli id delle ultime misurazioni di tutti i sensori attivi. Potrebbero essere nulle
             }
 
             return measurementDAO.getMeasurements(map);
         }catch (SQLException e){
-            System.err.println("Errore durante la lettura delle attauli misurazioni da parte dell'utente " + e.getMessage());
+            System.err.println("Errore durante la lettura delle attuali misurazioni da parte dell'utente " + e.getMessage());
             return null;
         }
     }
@@ -40,18 +40,18 @@ public class UserController {
                     map.put("id", idLastMeasurement);//mappa che contiene tutti gli id delle ultime misurazioni di tutti i sensori attivi. Potrebbero essere nulle
             }
 
-            return measurementDAO.getMeasurements(starDate, endDate, map);//fixme fa esattamente la stessa cosa di readData(), solo che chiama l'altra funzione
+            return measurementDAO.getMeasurements(starDate, endDate, map);
         }catch (SQLException e){
             System.err.println("Errore durante la lettura delle attauli misurazioni da parte dell'utente " + e.getMessage());
             return null;
         }
     }
 
-    public void setAlertRule(int userId, SensorType sensorType, float lowerBound, float upperBound){
+    public void setAlertRule(int userId, SensorType sensorType, Float lowerBound, Float upperBound){
         try (AlertRuleDAO alertRuleDAO = new AlertRuleDAO()){
             alertRuleDAO.addAlertRule(userId, sensorType, lowerBound, upperBound);
         }catch (SQLException e){
-            System.err.println("Errore nell'aggiunzione di una nuova alert rule " + e.getMessage());
+            System.err.println("Errore durante l'inserimento di una nuova alert rule " + e.getMessage());
         }
     }
 

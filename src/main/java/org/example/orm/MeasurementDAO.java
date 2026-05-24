@@ -26,8 +26,8 @@ public class MeasurementDAO implements AutoCloseable{
 
     public ArrayList<Measurement> getMeasurements(Map<String, Object> param) {
         StringBuilder query = new StringBuilder("SELECT * FROM \"Measurement\"");
-        query.append(" WHERE ");
         if (param != null && !param.isEmpty()) {
+            query.append(" WHERE ");
             for (String key : param.keySet()) {
                 query.append(key).append(" = ? AND ");
             }

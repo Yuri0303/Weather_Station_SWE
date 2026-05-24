@@ -56,7 +56,7 @@ class AdminControllerTest {
             measurementDAO.addMeasurement(m3);
             measurementDAO.addMeasurement(m4);
         }catch (SQLException e){
-            System.err.println("Error in measurementDAO: " + e.getMessage());
+            System.err.println("Error in ReadDataHistory Test: " + e.getMessage());
         }
 
         ArrayList<Measurement> comparing = new ArrayList<>();
@@ -65,7 +65,6 @@ class AdminControllerTest {
         comparing.add(m3);
 
         ArrayList<Measurement> results = adminController.readDataHistory(startDate, endDate);
-        System.out.println(results.toString());
 
         assertIterableEquals(results, comparing);
     }

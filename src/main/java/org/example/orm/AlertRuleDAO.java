@@ -32,13 +32,13 @@ public class AlertRuleDAO implements AutoCloseable{
             statement.setString(1, sensorType.name());
             statement.setInt(4, userId);
 
-            if(lowerBound != null){
+            if(lowerBound == null){
                 statement.setNull(2, Types.FLOAT);
             }
             else
                 statement.setFloat(2, lowerBound);
 
-            if(upperBound != null){
+            if(upperBound == null){
                 statement.setNull(3, Types.FLOAT);
             }
             else
@@ -47,7 +47,7 @@ public class AlertRuleDAO implements AutoCloseable{
 
             statement.executeUpdate();
         }catch (SQLException e){
-            System.err.println("Errore nell'inserimento di una nuova alert rule");
+            System.err.println("Errore durante l'inserimento di una nuova alert rule: "+e.getMessage());
             e.getStackTrace();
         }
     }
@@ -57,7 +57,7 @@ public class AlertRuleDAO implements AutoCloseable{
         StringBuilder query = new StringBuilder("SELECT * FROM \"AlertRule\"");
 
         if(param != null && !param.isEmpty()){
-            query.append("WHERE");
+            query.append(" WHERE ");
             for (String key : param.keySet())
                 query.append(key).append(" = ? AND ");
             query.setLength(query.length() - 5);
@@ -73,16 +73,23 @@ public class AlertRuleDAO implements AutoCloseable{
 
                 try (ResultSet resultSet = statement.executeQuery()){
                     while (resultSet.next()){
-                        alertRules.add(new AlertRule(resultSet.getInt("id"), resultSet.getInt("userId"), resultSet.getFloat("lowerBound"),
-                                resultSet.getFloat("upperBound"), SensorType.valueOf(resultSet.getString("sensorType"))));
+                        Float lowerBound = resultSet.getFloat("lowerBound");
+                        if (resultSet.wasNull()) {
+                            lowerBound = null;
+                        }
+
+                        Float upperBound = resultSet.getFloat("upperBound");
+                        if (resultSet.wasNull()) {
+                            upperBound = null;
+                        }
+                        alertRules.add(new AlertRule(resultSet.getInt("id"), resultSet.getInt("userId"), lowerBound, upperBound, SensorType.valueOf(resultSet.getString("sensorType"))));
                     }
                 }
             }
         }catch (SQLException e){
-            System.err.println("Errore durante l'estrazione delle alert rules");
+            System.err.println("Errore durante l'estrazione delle alert rules: "+e.getMessage());
             e.getStackTrace();
         }
-
         return alertRules;
     }
 

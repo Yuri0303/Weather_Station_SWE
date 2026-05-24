@@ -34,12 +34,17 @@ public class MaintainerController {
         }
     }
 
-//Versione senza la transazione
-    /*public void changeSensor(int ticketId){
-        SensorDAO sensorDAO = new SensorDAO();
-        TicketDAO ticketDAO = new TicketDAO();
+    public void closeTicket(int ticketId) throws SQLException{
+        try (TicketDAO ticketDAO = new TicketDAO()) {
+            ticketDAO.closeTicket(ticketId);
+        }catch (SQLException e){
+            System.err.println("Errore durante la chiusura del ticket" + e.getMessage());
+        }
+    }
 
-        try {
+
+    public void changeSensor(int ticketId){
+        try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
             Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId);
 
             Sensor changingSensor;
@@ -51,102 +56,38 @@ public class MaintainerController {
 
             sensorDAO.changeSensorState(sensorId, SensorState.DEACTIVATED);
             sensorDAO.addSensor(changingSensor.getSensorType());
+            closeTicket(ticketId);
+
         }catch (SQLException e){
             System.err.println("La sostituazione del sensore da parte identificato dal ticketId " + ticketId + " non è andata a buon fine");
             e.getStackTrace();
         }
-    }*/
-
-    /*public boolean changeSensor(int ticketId, int maintainerId) {
-        boolean success = false;
-        try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
-            conn.setAutoCommit(false);
-
-
-            Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId);
-            if (sensorId == null) throw new SQLException("Sensore non trovato");
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", sensorId);
-            ////////////////////////////todo fondere le funzioni
-            ArrayList<Sensor> sensors = sensorDAO.getSensors(map);
-            Sensor changingSensor = sensors.getFirst();
-
-
-            sensorDAO.changeSensorState(sensorId, SensorState.DEACTIVATED);
-            ///////////////////////////
-            sensorDAO.addSensor(changingSensor.getSensorType());
-            closeTicket(ticketId, maintainerId);
-
-
-            conn.commit();
-            success = true;
-
-        } catch (SQLException | ClassNotFoundException e) {
-            try {
-                if (conn != null) conn.rollback();
-            } catch (SQLException ex) { ex.printStackTrace(); }
-
-            System.err.println("Errore: transazione annullata per ticket " + ticketId);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                }
-            } catch (SQLException e) { e.printStackTrace(); }
-        }
-
-        return success;
     }
 
-    public boolean repairSensor(int ticketId, int maintainerId){
-        Connection conn = null;
-        double repairOrChange = Math.random();
-        boolean success = false;
 
+    public String repairSensor(double repairOrChange, int ticketId){//la probabilità viene passata come parameetro altrimenti risulta troppo difficile da testare
         if(repairOrChange < 0.88){
 
             try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
-                conn = DatabaseManager.getConnection();
-                conn.setAutoCommit(false);
-
-
-
                 Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId);
-                if (sensorId == null) throw new SQLException("Sensore non trovato");
+                if (sensorId == null) throw new SQLException("Sensore non trovato");//fixme è possibile?
 
                 sensorDAO.changeSensorState(sensorId, SensorState.ACTIVE);
-                closeTicket(ticketId, maintainerId);
+                closeTicket(ticketId);
+                System.out.println("il sensore è stato riparato");
+                return "sensore_riparato";
 
-                conn.commit();
-                success = true;
-
-            } catch (SQLException | ClassNotFoundException e) {
-                try {
-                    if (conn != null) conn.rollback();
-                } catch (SQLException ex) { ex.printStackTrace(); }
-
+            } catch (SQLException e) {
                 System.err.println("Errore: transazione annullata per ticket " + ticketId);
-            } finally {
-                try {
-                    if (conn != null) {
-                        conn.setAutoCommit(true);
-                        conn.close();
-                    }
-                } catch (SQLException e) { e.printStackTrace(); }
+                e.getStackTrace();
             }
 
-        }else
-            success = changeSensor(ticketId, maintainerId);
-
-        return success;
-    }*/
-
-    public void closeTicket(int ticketId, int maintainerId) throws SQLException{ //FIXME potrebbe non servire il maitainerId?
-        try (TicketDAO ticketDAO = new TicketDAO()) {//è una funzione che viene chiamata all'interno di una transazione, quindi la connessione deve essere la solita
-            ticketDAO.closeTicket(ticketId, maintainerId);
-        }catch (SQLException e){
-            System.err.println("Errore durante la chiusura del ticket" + e.getMessage());
+        }else{
+            changeSensor(ticketId);
+            System.out.println("Il sensore è stato sostituito");
+            return "sensore_sostituito";
         }
+            return "errore-generale";
     }
+
 }

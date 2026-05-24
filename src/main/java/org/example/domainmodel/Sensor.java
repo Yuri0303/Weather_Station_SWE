@@ -13,7 +13,7 @@ public abstract class Sensor extends Observable {
         this.sensorState = SensorState.ACTIVE;
     }
 
-    public Sensor(int id, int lastMeasurementId, SensorType sensorType, SensorState sensorState) {
+    public Sensor(int id, Integer lastMeasurementId, SensorType sensorType, SensorState sensorState) {
         this.id = id;
         this.lastMeasurementId = lastMeasurementId;
         this.sensorType = sensorType;
@@ -37,6 +37,10 @@ public abstract class Sensor extends Observable {
         return sensorType;
     }
 
+    public SensorState getSensorState(){return sensorState;}
+
     public Integer getLastMeasurementId(){return lastMeasurementId;}
+
+    public void sensorStateToFaulty(){this.sensorState = SensorState.FAULTY;}//usata solo nei test
 
 }

@@ -2,7 +2,7 @@ package org.example.domainmodel;
 
 public class TemperatureSensor extends Sensor {
 
-    public TemperatureSensor(int id, int idLastMeasurement, SensorType sensorType, SensorState sensorState) {
+    public TemperatureSensor(int id, Integer idLastMeasurement, SensorType sensorType, SensorState sensorState) {
         super(id, idLastMeasurement, sensorType, sensorState);
     }
 

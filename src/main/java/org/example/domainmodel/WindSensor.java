@@ -2,7 +2,7 @@ package org.example.domainmodel;
 
 public class WindSensor extends Sensor {
 
-    public WindSensor(int id, int idLastMeasurement, SensorType sensorType, SensorState sensorState) {
+    public WindSensor(int id, Integer idLastMeasurement, SensorType sensorType, SensorState sensorState) {
         super(id, idLastMeasurement, sensorType, sensorState);
     }
     @Override

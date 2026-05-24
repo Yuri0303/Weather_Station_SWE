@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
 public class NotificationDAO implements AutoCloseable {
@@ -37,7 +38,7 @@ public class NotificationDAO implements AutoCloseable {
     }
 
     public ArrayList<Notification> viewUnreadNotification(int userId) throws SQLException {
-        String query = "SELECT * FROM \"Notification\" WHERE userId = ? AND isRead = ?";
+        String query = "SELECT * FROM \"Notification\" WHERE userId = ? AND isRead = false";
         ArrayList<Notification> notifications = new ArrayList<>();
 
         try(PreparedStatement statement = connection.prepareStatement(query)){
@@ -48,11 +49,11 @@ public class NotificationDAO implements AutoCloseable {
                     notifications.add(new Notification(resultSet.getInt("id"), resultSet.getString("message"), resultSet.getObject("dateTime", LocalDateTime.class), resultSet.getBoolean("isRead"), resultSet.getInt("userId")));
                 }
             } catch (SQLException e) {
-                System.err.println("Errore durante la query delle notifiche non lette");
+                System.err.println("Errore durante la query delle notifiche non lette: "+e.getMessage());
             }
 
         }catch (SQLException e){
-            System.err.println("Errore durante il recupero delle notifiche non lette");
+            System.err.println("Errore durante il recupero delle notifiche non lette:"+e.getMessage());
             e.getStackTrace();
         }
 
@@ -65,8 +66,8 @@ public class NotificationDAO implements AutoCloseable {
 
         try(PreparedStatement statement = connection.prepareStatement(query)){
             statement.setInt(1, userId);
-            LocalDateTime dateTime = LocalDateTime.now().minusDays(lastDays);
-            statement.setTimestamp(2, java.sql.Timestamp.valueOf(dateTime));
+            LocalDateTime limit = LocalDateTime.now().minusDays(lastDays).truncatedTo(ChronoUnit.DAYS);
+            statement.setTimestamp(2, java.sql.Timestamp.valueOf(limit));
 
             try(ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()){
@@ -83,7 +84,7 @@ public class NotificationDAO implements AutoCloseable {
     }
 
     public void setRead(int id) throws SQLException {
-        try(PreparedStatement statement = connection.prepareStatement("UPDATE \"Notification\" SET isRead = TRUE WHERE id = ?")){
+        try(PreparedStatement statement = connection.prepareStatement("UPDATE \"Notification\" SET isRead = true WHERE id = ?")){
 
             statement.setInt(1, id);
             statement.executeUpdate();
