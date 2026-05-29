@@ -71,10 +71,11 @@ public class TicketDAO implements AutoCloseable{
         }
     }
 
-    public void closeTicket(int ticketId) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Ticket\" SET isOpen = false, closeDateTime = ? WHERE id = ? AND isOpen = true")) {
+    public void closeTicket(int ticketId, int maintainerId) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Ticket\" SET isOpen = false, closeDateTime = ? WHERE id = ? AND maintainerid = ? AND isOpen = true")) {
             statement.setTimestamp(1, java.sql.Timestamp.valueOf(LocalDateTime.now()));
             statement.setInt(2, ticketId);
+            statement.setInt(3, maintainerId);
 
             int updateCount = statement.executeUpdate();
             if (updateCount != 1)
@@ -86,12 +87,13 @@ public class TicketDAO implements AutoCloseable{
         }
     }
 
-    public Integer getSensorIdByTicket(int ticketId) throws SQLException{ //NOTA: è necessario che questa si propaghi, perché successivamente non può essere accettato un valore null
-        String query = "SELECT * FROM \"Ticket\" WHERE id = ?";
+    public Integer getSensorIdByTicket(int ticketId, int maintainerId) throws SQLException { //NOTA: è necessario che questa si propaghi, perché successivamente non può essere accettato un valore null
+        String query = "SELECT * FROM \"Ticket\" WHERE id = ? AND maintainerid = ? AND isOpen = true";
         Integer result = null;
 
         try (PreparedStatement statement = connection.prepareStatement(query)){
             statement.setInt(1, ticketId);
+            statement.setInt(2, maintainerId);
 
             try(ResultSet resultSet = statement.executeQuery()){
                 if (resultSet.next()){

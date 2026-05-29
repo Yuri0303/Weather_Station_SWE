@@ -1,5 +1,6 @@
 package org.example.businesslogic;
 
+import org.example.domainmodel.Maintainer;
 import org.example.domainmodel.Sensor;
 import org.example.domainmodel.SensorState;
 import org.example.domainmodel.Ticket;
@@ -11,10 +12,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.sql.Connection;
-import org.example.orm.DatabaseManager;
-
 public class MaintainerController {
+    private final Maintainer maintainer;
+
+    public MaintainerController(Maintainer maintainer) {
+        this.maintainer = maintainer;
+    }
+
     public ArrayList<Ticket> viewOpenTickets(){
         try (TicketDAO ticketDAO = new TicketDAO()) {
             return ticketDAO.getOpenTickets();
@@ -25,28 +29,32 @@ public class MaintainerController {
 
     }
 
-    public void takeTicket(int ticketId, int maintainerId){
+    public void takeTicket(int ticketId) throws SQLException {
         try (TicketDAO ticketDAO = new TicketDAO()){
-            ticketDAO.takeTicket(ticketId, maintainerId);
-        }catch (SQLException | RuntimeException e){
-            System.err.println("L'acquisizione del ticket da parte di maintainer " + maintainerId + "non è andata a buon fine" + e.getMessage());
+            ticketDAO.takeTicket(ticketId, maintainer.getId());
+        } catch (SQLException e) {
+            System.err.println("L'acquisizione del ticket da parte di maintainer " + maintainer.getId() + " non è andata a buon fine: " + e.getMessage());
             e.getStackTrace();
+            throw e;
         }
     }
 
-    public void closeTicket(int ticketId) throws SQLException{
+    public void closeTicket(int ticketId) throws SQLException {
         try (TicketDAO ticketDAO = new TicketDAO()) {
-            ticketDAO.closeTicket(ticketId);
+            ticketDAO.closeTicket(ticketId, maintainer.getId());
         }catch (SQLException e){
             System.err.println("Errore durante la chiusura del ticket" + e.getMessage());
+            throw e;
         }
     }
 
 
-    public void changeSensor(int ticketId){
+    public void changeSensor(int ticketId) throws RuntimeException {
         try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
-            Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId);
-
+            Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId, maintainer.getId());
+            if (sensorId == null) {
+                throw new RuntimeException("Ticket non mio oppure ticket già chiuso");
+            }
             Sensor changingSensor;
             Map<String , Object> map = new HashMap<>();
             map.put("id",sensorId);
@@ -59,7 +67,7 @@ public class MaintainerController {
             closeTicket(ticketId);
 
         }catch (SQLException e){
-            System.err.println("La sostituazione del sensore da parte identificato dal ticketId " + ticketId + " non è andata a buon fine");
+            System.err.println("La sostituzione del sensore da parte identificato dal ticketId " + ticketId + " non è andata a buon fine");
             e.getStackTrace();
         }
     }
@@ -69,7 +77,7 @@ public class MaintainerController {
         if(repairOrChange < 0.88){
 
             try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
-                Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId);
+                Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId, maintainer.getId());
                 if (sensorId == null) throw new SQLException("Sensore non trovato");//fixme è possibile?
 
                 sensorDAO.changeSensorState(sensorId, SensorState.ACTIVE);
@@ -82,10 +90,15 @@ public class MaintainerController {
                 e.getStackTrace();
             }
 
-        }else{
-            changeSensor(ticketId);
-            System.out.println("Il sensore è stato sostituito");
-            return "sensore_sostituito";
+        } else {
+            try {
+                changeSensor(ticketId);
+                System.out.println("Il sensore è stato sostituito");
+                return "sensore_sostituito";
+            } catch (RuntimeException e) {
+                System.err.println(e.getMessage());
+                return "errore-generale";
+            }
         }
             return "errore-generale";
     }
