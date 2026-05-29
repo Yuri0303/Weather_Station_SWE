@@ -1,0 +1,211 @@
+\documentclass[a4paper, 11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage{geometry}
+\geometry{a4paper, top=2cm, bottom=2cm, left=2cm, right=2cm}
+\usepackage{enumitem}
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+\usepackage{listings}
+
+% --- Configurazione Grafica ---
+\graphicspath{{./images/}} % Cartella dove salvare le tue immagini (opzionale)
+
+% --- Configurazione Stile Codice Java ---
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35}
+\definecolor{javapurple}{rgb}{0.5,0,0.35}
+\definecolor{javablue}{rgb}{0,0,0.8}
+\definecolor{javastring}{rgb}{0.6,0.1,0.1} % Definito colore mancante per le stringhe
+\definecolor{bgcode}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+  language=Java,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{javablue}\bfseries,
+  stringstyle=\color{javastring},      % Corretto da javachr a javastring
+  commentstyle=\color{javagreen}\itshape,
+  morecomment=[s][\color{javapurple}]{/**}{*/},
+  numbers=left,                 % Numeri di riga a sinistra
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=10pt,
+  backgroundcolor=\color{bgcode},
+  tabsize=4,
+  showspaces=false,
+  showstringspaces=false,
+  breaklines=true,              % Va a capo automaticamente
+  frame=single                  % Bordo intorno al codice
+}
+
+
+\title{Relazione per SWE}
+\author{Giulio Nencini - MAT: 7115972
+        Yuri Bartoletti - MAT: 7113273}
+\date{\today}
+
+\begin{document}
+\newpage
+\maketitle
+\tableofcontents
+
+\section{Presentazione del progetto}
+\subsection{Statement}
+Il software è un sistema composto principalmente da due parti: misurazione di alcune grandezze fisiche meteorologiche ad opera di alcuni sensori, tali misurazioni saranno visibili dagli utenti che desidereranno vederle,
+e sistema di notificazione agli utenti qualora una di queste misurazioni dovesse violare dei limiti impostati nelle "AlertRule" dall'utente stesso. Vi è inoltre un sistema interno che si occupa della sorveglianza dei sensori: qualora si dovessero riscontrare misurazioni anomale scatterà l'apertura di un ticket e ci sarà un manutentore che provvederà alla riparazione o alla sostituzione del sensore guasto.
+
+\subsection{Pratiche e ambienti di sviluppo}
+Il software è stato interamente sviluppato in Java, mentre per il database abbiamo è stato usato PostGreSQL mediante la libreria JBDC.
+Tutti i diagrammi sono stati realizzati con Gaphor, tranne il modello relazionale che è stato realizzato mediante il sito DrawSQL.app.
+Abbiamo optato per la separazione
+\begin{itemize}
+    \item \textbf{Business Logic}: per le classi che implementano la logica di business del sistema.
+    \item \textbf{Domain Model}: contiene le classi che rappresentano le entità del sistema.
+    \item \textbf{ORM}: contiene le classi che implementano l’Object-Relational Mapping, fondamentale al fine di rendere i dati permanenti in un db.
+\end{itemize}
+Per poter interagire col software è stata creata un'interfaccia a riga di comando.
+
+Il codice è presente al seguente repo di GitHub: https://github.com/Yuri0303/Weather_Station_SWE
+
+Prima di passare alla presentazione delle varie classi, ecco di seguito il Dependency Package Diagram, che illustra dove i vari package fanno uso di metodi esterni:
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{Images/Dependency_Package_Diagram}
+  \caption{Dependency Package Diagram}
+  \label{fig:dependency_package_diagram}
+\end{figure}
+
+\section{Progettazione}
+\subsection{Use Case Diagram}
+L'attore User è il cliente utilizzatore dei servizi del software, può di base leggere le misurazioni effettuate oppure impostare una alert rule. L'Admin svolge l'esecizio di sorveglianza manuale del corretto funzionamento dei sensori, così come quello di amministratore generale del sistema, è l'unica entità che può bloccare un utente. Il monitor di sistema svolge una sorveglianza automatica (periodica) in merito al corretto funzionamento dei sensori. Sia quest'ultimo che l'admin possono aprire dei ticket in seguito al riscontro di un'anomalia, ticket che sarà preso da uno dei Maintainer, che interverranno sul sensore segnalato riparandolo o sostituendolo
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{Images/Use_Case_User}
+  \caption{Use Case User}
+  \label{fig:Use_Case_User}
+\end{figure}\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{Images/Use_Case_Admin}
+  \caption{Use Case Admin}
+  \label{fig:Use_Case_Admin}
+\end{figure}\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{Images/Use_Case_SystemMonitor}
+  \caption{Use Case SystemMonitor}
+  \label{fig:Use_CaseSystemMonitor}
+\end{figure}\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{Images/Use_Case_Maintainer}
+  \caption{Use Case Maintainer}
+  \label{fig:Use_Case_Maintainer}
+\end{figure}
+
+\subsection{Use Case Template}
+\input{UsecaseTemplate}
+
+\newpage
+\subsection{Class Diagram}
+\subsubsection{Domain Model}
+Contiene le entità del sistema, solo due di esse hanno al loro interno un metodo sfruttato da alcune classi della business logic. Per il resto sono solo classi di getter e setter, se non addirittura composte solo dal costruttore.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{Images/Class_Diagram_Domain_Model}
+  \caption{Class Diagram Domain Model}
+  \label{fig:Class_Diagram_Domain_Model}
+\end{figure}
+
+\subsubsection{Business Logic}
+Si tratta di un insieme di controller, uno per ogni attore, che permettono a questi di erogare uno dei servizi loro concessi. Il \texttt{SensorManager} è una classe utile per l'implementazione dell'observer \ref{observer}. è anche presente una classe \texttt{AdminExtraController} utile per alcune funzioni di gestione del db, utile soprattutto nel testing.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{Images/Class_Diagram_Business_Logic}
+  \caption{Class Diagram Business Logic}
+  \label{fig:Class_Diagram_Business_Logic}
+\end{figure}
+
+\subsubsection{ORM}
+Contiene un oggetto nameClassDAO per ogni classe del domain model presente nel db di sistema. \texttt{ConnectionManager} è la classe che si occupa di erogare e chiudere la connessione al db.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{Images/Class_Diagram_ORM}
+  \caption{Class Diagram ORM}
+  \label{fig:Class_Diagram_ORM}
+\end{figure}
+
+\subsection{ER e Relationship Model}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{Images/ER_Diagram}
+  \caption{ER Diagram}
+  \label{fig:Class_ER_Diagram}
+\end{figure}
+
+\subsection{Mock-ups} % da implementare
+\subsection{Navigation Diagram} % da implementare
+
+\section{Implementazione}
+  \subsection{Domain Model} % Corretto \subsetion -> \subsection
+    \subsubsection{SystemUser}
+    Classe astratta che identifica un generico utilizzatore del software. Più nello specifico, è colui che può eseguire un'operazione di login mediante \texttt{email e password}.
+    \begin{itemize}
+      \item \textbf{User}: Il cliente che usufruisce del servizio come tale. Può leggere le ultime misurazioni, come può leggere lo storico delle misurazioni e può anche creare delle \textbf{alert rules} personalizzate, in seguito ad una alert rule violata in uno dei suoi bound verrà inviata una notifica di allerta.
+      \item \textbf{Admin}: L'amministratore del sistema, nonché la figura con i privilegi più grandi. Può bloccare gli utenti e può aprire manualmente un ticket di manutenzione se, in seguito ad una lettura dei dati da lui eseguita, risultano essere presenti dei valori anomali nei vari sensori, il sensore in questione sarà da lui settato nello stato \texttt{SensorState.FAULTY}.
+      \item \textbf{Maintainer}: La figura che può acquisire i ticket di manutenzione, quindi intervenire sui sensori segnalati. Se un sensore viene riparato lo resetta nello stato \texttt{SensorState.ACTIVE}, altrimenti ne afgiungerà uno nuovo impostando a \texttt{SensorState.DEACTIVATED} quello guasto.
+    \end{itemize}
+    \subsubsection{Notification}
+      Classe che rappresenta l'oggetto che sarà inviato all'User la cui alert rule è appena stata violata dalle nuove misurazioni. Tra i campi, possiede il flag \texttt{isRead} che, finché sarà \texttt{false} farà sì che la notifica in questione appaia all'utente nel contenitore delle notifiche non lette.
+    \subsubsection{Measurement}
+      Classe che identifica una misurazione di un sensore. Sarà quindi specificato l'id del sensore al quale appartiene e il valore della misurazione. Per sapere quale sia la grandezza fisica misurata è necessario accedere alla tabella dei sensori mediante il campo \texttt{sensorId}. ATTENZIOMNE: le misurazioni potrebbero riportare valori sballati a causa di guasti ai sensori.
+    \subsubsection{Ticket}
+      Classe che identifica il ticket di segnalazione. Sarà riferito ad uno specifico sensore mediante il campo \texttt{sensorId}. Possiede il flag \texttt{isTaken} e il campo \texttt{maintainerId} che finché saranno rispettivamente false e null faranno sì che un maintainer possa acquisire tale ticket. Una volta fatto ciò, tale flag sarà settato a true e il campo maintainerId sarà compilato. Il flag \texttt{isOpen} invece resterà true finché il sensore guasto non sarà o riattivato o disattivato e quindi sostituito.
+    \subsubsection{Sensor}
+      Classe che definisce gli strumenti di misurazione. La classe in sé è astratta ed è implementata nei 4 tipi di sensore sviluppati: \texttt{TemperatureSensor}, \texttt{PressureSensor}, \texttt{WindSensor}, \texttt{HumiditySensor}. Nessuno di questi in realtà introduce nuovi attributi, ciò che li contraddistingue è la diversa implementazione del metodo \texttt{measure()} \textbf{FIXME : è stata una buona idea averlo implementato così?}.
+    \subsubsection{Design Pattern Observer}
+      \label{observer}
+      \textbf{TODO: mettere un'immagine del class diagram con l'observer ritagliato}
+      Vediamo che i Sensor sono i nostri observable, e sono osservati dal SensorMonitor. La classe Sensor è già stata descritta qualche paragrafo sopra. Il SensorMonitor è una classe composta da due metodi privati usati nell'implementazione della funzione \texttt{update()} dell'interfaccia Observer. Tale funzione aggiungerà al db tutte le nuove Notification create in seguito a nuove violazioni delle varie AlertRule. \textbf{TODO: il funzionamento in merito alla chiamata di notify non è ancora stato implementato}
+    \subsubsection{Enumerazione}
+      Sono presenti due classi che introducono due diverse enumerazioni:
+      \begin{itemize}
+        \item \textbf{SensorState}: assume i valori \texttt{ACTIVE, FAULTY, DEACTIVATED}, che rispettivamente rappresentano un sensore in normale funzione, un sensore che è stato contrassegnato come guasto o dall'Admin o dal SystemMonitor, un sensore che è stato permanentemente disattivato da un Maintainer.
+        \item \textbf{SensorType}: assume i valori \texttt{TEMPERATURE, PRESSURE, WIND, HUMIDITY}, tali campi sono usato non soltanto all'interno dei sensori, ma anche all'interno delle AlertRule.
+      \end{itemize}
+
+  \subsection{Business Logic} % Corretto \subsetion -> \subsection
+    \subsubsection{AdminDatabaseController}
+    \subsubsection{SystemMonitor}
+    \subsubsection{AdminController}
+    \subsubsection{MaintainerController}
+    \subsubsection{SensorManager}
+    \subsubsection{SensorMonitor}
+    \subsubsection{StaffLoginController}
+    \subsubsection{UserController}
+    \subsubsection{UserLoginController}
+
+  \subsection{ORM} % Corretto \subsetion -> \subsection
+    \subsubsection{DatabaseManager}
+    \subsubsection{AdminDAO}
+    \subsubsection{AlertRuleDAO}
+    \subsubsection{MaintainerDAO}
+    \subsubsection{MeasurementDAO}
+    \subsubsection{NotificationDAO}
+    \subsubsection{SensorDAO}
+    \subsubsection{TicketDAO}
+    \subsubsection{UserDAO}
+
+  \subsection{Database} % Corretto \subsetion -> \subsection
+  \subsection{Interfaccia} % Corretto \subsetion -> \subsection
+
+\section{Testing}
+\subsection{Business Logic Test}
+\subsubsection{AdminControllerTest}
+\subsubsection{MaintainerControllerTest}
+\subsubsection{StaffLoginControllerTest}
+\subsubsection{UserController}
+\subsubsection{UserLoginController}
+
+\subsection{Domain Model}
+\subsubsection{AlertRuleTest}
+
+\end{document}

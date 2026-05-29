@@ -1,0 +1,258 @@
+
+	\begin{table}[h]
+		\centering
+		\setlength{\arrayrulewidth}{0.8pt} % Raddoppia lo spessore delle linee
+		% Attiva l'alternanza colori dalla riga 2
+		\rowcolors{2}{white}{blue!10}
+		
+		% Definizione con un solo | per il bordo sinistro e destro
+		\begin{tabular}{|l p{12cm}|}
+			\hline % Bordo superiore
+			
+			\rowcolor{gray!25}
+			\textbf{Use Case \#1} & \textbf{Accedi al sistema (Sign-in)} \\ 
+			\textbf{Brief Description} & L'utente del sistema accede usando le proprie credenziali\\
+			\textbf{Level} & User Goal \\ 
+			\textbf{Actors} & User, Admin, Maintainer \\ 
+			\textbf{Pre-Conditions} & L'utente di sistema deve essere sulla pagina dedicata all'accesso \\ %(mockup) 
+			\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
+				\item L'utente di sistema seleziona la propria pagina di login
+				\item L'utente inserisce le proprie credenziali 
+				\item L'utente invia le proprie credenziali 
+				\item Il sistema verifica le credenziali
+				\item Il sistema autentica l'utente
+			\end{enumerate} \\
+			\textbf{Alternative Flow} & 4.a) Se le credenziali sono errate, l'utente non è registrato oppure è sulla pagina di login errata, il sistema restituisce un messaggio di errore e permette di ritentare \\ %(test) 
+			\textbf{Post-Conditions} & L'utente è autenticato nel sistema e ha accesso alle sue funzioni \\ 
+			
+			\hline % Bordo inferiore
+		\end{tabular}
+		
+		\vspace{0.2cm}
+		\caption{Use Case \#1 (Accedi al sistema)}
+	\end{table}
+	
+	\vspace{1cm} 
+	
+	\begin{table}[h]
+		\centering
+		\setlength{\arrayrulewidth}{0.8pt} % Raddoppia lo spessore delle linee
+		\rowcolors{2}{white}{blue!10}
+		
+		\begin{tabular}{|l p{12cm}|}
+			\hline
+			
+			\rowcolor{gray!25}
+			\textbf{Use Case \#2} & \textbf{Registrazione (Sing-Up)} \\ 
+			\textbf{Brief Description} & L'utente si registra creando un nuovo account \\
+			\textbf{Level} & User Goal \\ 
+			\textbf{Actors} & User \\ 
+			\textbf{Pre-Conditions} & L'utente deve essere nella pagina di registrazione \\ %(mockup)
+			\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
+				\item L'utente  fornisce le informazioni richieste
+				\item l'utente conferma la registrazione
+				\item Il sistema verifica i dati (email ha vincolo unique)
+				\item Il sistema crea un nuovo account per il cliente
+			\end{enumerate} \\ 
+			\textbf{Alternative Flow} & 3.a) Se i dati non sono validi o sono già presenti in un altro account, il sistema mostra un messaggio di errore e permette di ritentare\\ 
+			\textbf{Post-Conditions} & Il sistema mostra il messaggio dell'avvenuta registrazione e riporta l'utente nella pagina di login \\ 
+			
+			\hline
+		\end{tabular}
+		
+		\vspace{0.2cm}
+		\caption{Use Case \#2 (Registrati al sistema)}
+	\end{table}
+	
+	\vspace{1cm} 
+	
+	\begin{table}[h]
+		\centering
+		\setlength{\arrayrulewidth}{0.8pt} % Raddoppia lo spessore delle linee
+		\rowcolors{2}{white}{blue!10}
+		
+		\begin{tabular}{|l p{12cm}|}
+			\hline
+			
+			\rowcolor{gray!25}
+			\textbf{Use Case \#3} & \textbf{Apertura del ticket (Admin)} \\ 
+			\textbf{Brief Description} & L'Admin apre una segnalazione su un sensore \\
+			\textbf{Level} & User Goal\\ 
+			\textbf{Actors} & Admin \\ 
+			\textbf{Pre-Conditions} & L'Admin deve aver fatto l'accesso e deve essere sulla pagina di "Lettura storico" \\ 
+			\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
+				\item L'Admin selezione l'opzione "Segnala sensore"
+				\item L'Admin selezione il sensore da segnalare
+				\item Il sistema registra il ticket sul sensore segnalato
+			\end{enumerate} \\  
+			% \textbf{Alternative Flow} & \\ 
+			\textbf{Post-Conditions} & Il ticket è stato registrato. Il sistema blocca il sensore segnalato e riporta l'Admin sulla pagina di "Lettura storico", così, se necessario, può aprire subito un altro ticket \\ 
+			
+			\hline
+		\end{tabular}
+		
+		\vspace{0.2cm}
+		\caption{Use Case \#3 (Admin: Apri ticket)}
+	\end{table}
+	\vspace{1cm} 
+	
+		\begin{table}[h]
+		\centering
+		\setlength{\arrayrulewidth}{0.8pt} % Raddoppia lo spessore delle linee
+		\rowcolors{2}{white}{blue!10}
+		
+		\begin{tabular}{|l p{12cm}|}
+			\hline
+			
+			\rowcolor{gray!25}
+			\textbf{Use Case \#4} & \textbf{Apertura del ticket (Monitor di Sistema)} \\ 
+			\textbf{Brief Description} & Il Monitor di Sistema apre una segnalazione su un sensore \\
+			\textbf{Level} & System Goal\\ 
+			\textbf{Actors} & SystemMonitor \\ 
+			\textbf{Pre-Conditions} & Il Monitor di Sistema è "sveglio" \\ 
+			\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
+				\item Il Monitor verifica se ci sono anomalie nei sensori:
+				 \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.3cm}, after=\vspace{-0.3cm}]
+					\item[1.a)] Verifica se l'ultima lettura dei sensori è in un range valido
+					\item[1.b)] Verifica che l'ultima misura non sia troppo vecchia
+				\end{enumerate}   
+				\item Il sistema registra il ticket sul sensore anomalo
+			\end{enumerate} \\  
+			\textbf{Alternative Flow} & 2.a) Il sistema non registra alcun ticket perché il Monitor non ha rilevato anomalie \\ 
+			\textbf{Post-Conditions} & Il sistema ha correttamente registrato il ticket (se è stato creato) e ha bloccato il sensore guasto\\ 
+			
+			\hline
+		\end{tabular}
+		
+		\vspace{0.2cm}
+		\caption{Use Case \#4 (SystemMonitor: Apri ticket)}
+	\end{table}
+	\vspace{1cm} 
+	
+		\begin{table}[h]
+		\centering
+		\setlength{\arrayrulewidth}{0.8pt} % Raddoppia lo spessore delle linee
+		\rowcolors{2}{white}{blue!10}
+		
+		\begin{tabular}{|l p{12cm}|}
+			\hline
+			
+			\rowcolor{gray!25}
+			\textbf{Use Case \#5} & \textbf{Prendere un ticket} \\ 
+			\textbf{Brief Description} & Il manutentore prende un ticket aperto\\
+			\textbf{Level} & User Goal \\ 
+			\textbf{Actors} & Maintainer \\ 
+			\textbf{Pre-Conditions} & Il manutentore deve essere autenticato e nella pagina "Visualizza ticket aperti". Inoltre, non deve avere già preso un ticket \\ 
+			\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
+				\item Il manutentore seleziona l'opzione "Prendi ticket"
+				\item Il manutentore seleziona il ticket che vuole prendere
+				\item Il sistema registra il ticket come preso
+			\end{enumerate} \\   
+			\textbf{Alternative Flow} & 3.a) Il sistema segnala un errore perché il ticket selezionato è già stato acquisito da un altro manutentore qualche istante prima\\ 
+			\textbf{Post-Conditions} & Il sistema imposta il ticket come "preso" \\ 
+			
+			\hline
+		\end{tabular}
+		
+		\vspace{0.2cm}
+		\caption{Use Case \#5 (Prendi un ticket)}
+	\end{table}
+	
+	\begin{table}[h]
+	\centering
+	\setlength{\arrayrulewidth}{0.8pt} % Raddoppia lo spessore delle linee
+	\rowcolors{2}{white}{blue!10}
+	
+	\begin{tabular}{|l p{12cm}|}
+		\hline
+		
+		\rowcolor{gray!25}
+		\textbf{Use Case \#6} & \textbf{Riparazione di un sensore} \\ 
+		\textbf{Brief Description} & Un manutentore che ha preso un ticket procede a riparare il sensore \\
+		\textbf{Level} & User Goal \\ 
+		\textbf{Actors} & Maintainer \\ 
+		\textbf{Pre-Conditions} & Il manutentore è autenticato e ha già preso un ticket \\ 
+		\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}] 
+			\item Il manutentore ripara il sensore  
+			\begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.3cm}, after=\vspace{-0.3cm}]
+				\item[1.a)] Il manutentore reimposta lo stato del sensore come "attivo"
+			\end{enumerate} 
+			\item Il manutentore chiude il ticket 
+		\end{enumerate} \\
+		\textbf{Alternative Flow} & \begin{enumerate}[label=\arabic*), before=\vspace{-0.7cm}, after=\vspace{-0.4cm}] 
+			\item[1.bis)] Il manutentore sostituisce il sensore se non riesce a ripararlo 
+			\begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.3cm}, after=\vspace{-0.3cm}]
+				\item[1.bis.a)] Il manutentore imposta lo stato del sensore a "disattivato"
+				\item[1.bis.b)] Il manutentore registra un nuovo sensore dello stesso tipo di quello sostituito
+			\end{enumerate} 
+		\end{enumerate} \\ 
+		\textbf{Post-Conditions} & Il sensore è stato riattivato oppure è stato disattivato definitivamente e sostituito\\ 
+		
+		\hline
+	\end{tabular}
+	
+	\vspace{0.2cm}
+	\caption{Use Case \#6 (Ripara sensore)}
+	\end{table}
+	\vspace{1cm} 
+	
+	\begin{table}[h]
+	\centering
+	\setlength{\arrayrulewidth}{0.8pt} % Raddoppia lo spessore delle linee
+	\rowcolors{2}{white}{blue!10}
+	
+	\begin{tabular}{|l p{12cm}|}
+		\hline
+		
+		\rowcolor{gray!25}
+		\textbf{Use Case \#7} & \textbf{Lettura dello storico dei dati (User)} \\ 
+		\textbf{Brief Description} & L'utente legge le misurazioni dei sensori effettuate fino a una certa quantità di giorni precedenti alla data odierna \\
+		\textbf{Level} & User Goal \\ 
+		\textbf{Actors} & User \\ 
+		\textbf{Pre-Conditions} & L'utente è autenticato e sulla pagina di lettura dati \\ 
+		\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
+			\item L'utente seleziona l'opzione "Leggi storico"
+			\item L'utente inserisce il numero di giorni di cui vuole leggere le misurazioni 
+			\item Il sistema mostra tutte le misurazioni fatte da tutti i sensori in quell'arco di tempo
+		\end{enumerate} \\   
+		\textbf{Alternative Flow} & 3.a) Il sistema mostra un errore se il numero di giorni inserito non è valido ($\le$0 o troppo grande) \\ 
+		\textbf{Post-Conditions} & Il sistema deve mostrare tutte e solo le misurazioni fatte in quell'arco di tempo \\ 
+		
+		\hline
+	\end{tabular}
+	
+	\vspace{0.2cm}
+	\caption{Use Case \#7 (User: Lettura storico)}
+	\end{table}
+	\vspace{1cm} 
+	
+	\begin{table}[h]
+	\centering
+	\setlength{\arrayrulewidth}{0.8pt} % Raddoppia lo spessore delle linee
+	\rowcolors{2}{white}{blue!10}
+	
+	\begin{tabular}{|l p{12cm}|}
+		\hline
+		
+		\rowcolor{gray!25}
+		\textbf{Use Case \#8} & \textbf{Impostare notifiche personalizzate} \\ 
+		\textbf{Brief Description} &  L'utente crea una regola. Se qualsiasi sensore di quel tipo supera i limiti impostati, l'utente riceverà una notifica \\
+		\textbf{Level} & User Goal \\ 
+		\textbf{Actors} & User \\ 
+		\textbf{Pre-Conditions} & L'utente è autenticato e sulla pagina principale \\ 
+		\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
+			\item L'utente seleziona l'opzione "Imposta notifica personalizzata"
+			\item L'utente crea la regola impostando il tipo di sensore e i limiti inferiore e superiore. Il sistema verificherà automaticamente questa regola alle misurazioni successive alla creazione fatte da ogni sensore di quel tipo
+			\item Il sistema registra la regola nel database
+		\end{enumerate} \\  
+		\textbf{Alternative Flow} & 3.a) Il sistema mostra un errore perché qualche valore della regola non è valido oppure se la regola esiste già \\ 
+		\textbf{Post-Conditions} & L'utente rimane sulla pagina per impostare la notifica personalizzata \\ 
+		
+		\hline
+	\end{tabular}
+	
+	\vspace{0.2cm}
+	\caption{Use Case \#8 (Imposta notifica personalizzata)}
+	\end{table}
+	\vspace{1cm} 
+	

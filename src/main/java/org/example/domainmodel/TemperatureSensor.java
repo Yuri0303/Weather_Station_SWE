@@ -12,7 +12,7 @@ public class TemperatureSensor extends Sensor {
         float upperBound = 35F;
         double probability = Math.random();
         float value;
-        if (probability < 0.80) {
+        if (probability < 0.80 && sensorState == SensorState.ACTIVE) {
             value = (float) (Math.random() * (upperBound - lowerBound)) + lowerBound;  //temperatura giusta nel range tra 0 e 35 gradi
         } else {
             value = (float) (Math.random() * (upperBound - lowerBound + 65)) + (lowerBound - 20);

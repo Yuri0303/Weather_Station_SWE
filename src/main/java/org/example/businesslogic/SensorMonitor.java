@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class SensorMonitor implements Observer {
 
-    public ArrayList<AlertRule> verifyAlertRules(Measurement measurement, SensorType sensorType) {
+    private ArrayList<AlertRule> verifyAlertRules(Measurement measurement, SensorType sensorType) {
         ArrayList<AlertRule> violatedAlertRules = new ArrayList<>();
         try (AlertRuleDAO alertRuleDAO = new AlertRuleDAO()) {
             ArrayList<AlertRule> alertRules = alertRuleDAO.getAlertRules(sensorType);

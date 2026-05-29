@@ -1,7 +1,6 @@
 package org.example.businesslogic;
 
 import org.example.domainmodel.*;
-import org.example.orm.MeasurementDAO;
 import org.example.orm.SensorDAO;
 import org.example.orm.TicketDAO;
 import org.junit.jupiter.api.AfterAll;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -139,7 +137,7 @@ public class MaintainerControllerTest {
             Map<String, Object> param = new HashMap<>();
             sensorDAO.addSensor(SensorType.TEMPERATURE);
             ticketDAO.addTicket(13);
-            ticketDAO.takeTicket(1, 1);
+            maintainerController.takeTicket(1);
 
             maintainerController.changeSensor(1);
 
