@@ -10,10 +10,31 @@ import java.util.ArrayList;
 import java.util.Map;
 
 
-public class SystemMonitor {
+public class SystemMonitor extends Thread{
 
     //TODO: metodo run di thread, dove si prende la lista dei sensori ACTIVE e nel caso apre i ticket
     //TODO: sincronizza con semaforo così che solo un thread alla volta può accedere al database
+
+    private SharedListActiveSensors sharedListActiveSensors = new SharedListActiveSensors();
+
+    @Override
+    public void run(){
+        try {
+            sharedListActiveSensors.acquireMutex();
+            ArrayList<Sensor> activeSensors = sharedListActiveSensors.getActualActiveSensors();
+            for(Sensor s : activeSensors){
+                boolean sOk = checkSensorValues(s.getId());
+                if(!sOk)
+                    openTicket(s.getId());
+            }
+            sharedListActiveSensors.releaseMutex();
+        }catch (InterruptedException e){
+
+        }catch (SQLException e){
+
+        }
+
+    }
 
     private boolean checkSensorValues(int sensorId) {
         try (SensorDAO sensorDAO = new SensorDAO(); MeasurementDAO measurementDAO = new MeasurementDAO()) {
@@ -53,7 +74,7 @@ public class SystemMonitor {
         return true;
     }
 
-    public void openTicket(int sensorId){
+    private void openTicket(int sensorId){//fixme l'ho reso privato, tanto è usato solo qui
         try (TicketDAO ticketDAO = new TicketDAO()) {
             ticketDAO.addTicket(sensorId);
         } catch (SQLException e) {

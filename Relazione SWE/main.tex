@@ -9,6 +9,7 @@
 \usepackage[table]{xcolor}
 \usepackage{graphicx}
 \usepackage{listings}
+\usepackage{float}
 
 % --- Configurazione Grafica ---
 \graphicspath{{./images/}} % Cartella dove salvare le tue immagini (opzionale)
@@ -84,17 +85,20 @@ L'attore User è il cliente utilizzatore dei servizi del software, può di base 
   \includegraphics[width=0.95\textwidth]{Images/Use_Case_User}
   \caption{Use Case User}
   \label{fig:Use_Case_User}
-\end{figure}\begin{figure}[H]
+\end{figure}
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{Images/Use_Case_Admin}
   \caption{Use Case Admin}
   \label{fig:Use_Case_Admin}
-\end{figure}\begin{figure}[H]
+\end{figure}
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{Images/Use_Case_SystemMonitor}
   \caption{Use Case SystemMonitor}
   \label{fig:Use_CaseSystemMonitor}
-\end{figure}\begin{figure}[H]
+\end{figure}
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{Images/Use_Case_Maintainer}
   \caption{Use Case Maintainer}
@@ -172,7 +176,8 @@ Contiene un oggetto nameClassDAO per ogni classe del domain model presente nel d
         \item \textbf{SensorType}: assume i valori \texttt{TEMPERATURE, PRESSURE, WIND, HUMIDITY}, tali campi sono usato non soltanto all'interno dei sensori, ma anche all'interno delle AlertRule.
       \end{itemize}
 
-  \subsection{Business Logic} % Corretto \subsetion -> \subsection
+  \subsection{Business Logic}
+    Le classi di questo package hanno lo scopo di fornire
     \subsubsection{AdminDatabaseController}
     \subsubsection{SystemMonitor}
     \subsubsection{AdminController}
@@ -183,7 +188,7 @@ Contiene un oggetto nameClassDAO per ogni classe del domain model presente nel d
     \subsubsection{UserController}
     \subsubsection{UserLoginController}
 
-  \subsection{ORM} % Corretto \subsetion -> \subsection
+  \subsection{ORM}
     \subsubsection{DatabaseManager}
     \subsubsection{AdminDAO}
     \subsubsection{AlertRuleDAO}
@@ -194,8 +199,8 @@ Contiene un oggetto nameClassDAO per ogni classe del domain model presente nel d
     \subsubsection{TicketDAO}
     \subsubsection{UserDAO}
 
-  \subsection{Database} % Corretto \subsetion -> \subsection
-  \subsection{Interfaccia} % Corretto \subsetion -> \subsection
+  \subsection{Database}
+  \subsection{Interfaccia}
 
 \section{Testing}
 \subsection{Business Logic Test}

@@ -131,6 +131,32 @@ public class SensorDAO implements AutoCloseable {
         }
     }
 
+    public Integer addSensorReturningId(SensorType sensorType) throws SQLException{//todo testare questa nuova funzione
+        String query = "INSERT INTO \"Sensor\" (lastMeasurementId, sensorType, sensorState) VALUES (?, ?, ?)";
+        Integer generatedId = null;
+
+        try (PreparedStatement statement = connection.prepareStatement(query)){
+            statement.setNull(1, Types.INTEGER);
+            statement.setString(2, sensorType.name());
+            statement.setString(3, SensorState.ACTIVE.name());
+
+            statement.executeUpdate();
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    generatedId = generatedKeys.getInt(1); // Prende il valore della prima colonna generata
+                } else {
+                    throw new SQLException("Inserimento fallito, nessun ID generato.");
+                }
+            }
+
+        }catch (SQLException e){
+            System.err.println("Errore durante l'inserimento di un nuovo sensore: " + e.getMessage());
+            e.getStackTrace();
+        }
+        return generatedId;
+    }
+
     public void updateLastMeasurement(int sensorId, int newLastMeasurementId) throws RuntimeException {
         try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Sensor\" SET lastMeasurementId = ? WHERE id = ?")) {
             statement.setInt(1, newLastMeasurementId);

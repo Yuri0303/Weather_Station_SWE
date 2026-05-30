@@ -49,7 +49,8 @@ public class MaintainerController {
     }
 
 
-    public void changeSensor(int ticketId) throws RuntimeException {
+    //todo nei test si deve inserire i sensorMonitor. NOTA: ho assunto che possano esere anche più di uno per rendere il prgramma più flessibile
+    public void changeSensor(int ticketId, ArrayList<SensorMonitor> sensorMonitors) throws RuntimeException {//todo rivedere il test per le nuove funzionalità di attach, destach e per il lancio dell'ecczione se l'inserimento del nuovo sensore non va a buon fine
         try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
             Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId, maintainer.getId());
             if (sensorId == null) {
@@ -63,7 +64,17 @@ public class MaintainerController {
             changingSensor = sensors.getFirst();
 
             sensorDAO.changeSensorState(sensorId, SensorState.DEACTIVATED);
-            sensorDAO.addSensor(changingSensor.getSensorType());
+            Integer lastID = sensorDAO.addSensorReturningId(changingSensor.getSensorType());//mi deve restituire l'ultimo sensore inserito in qualche modo, all'ultimo sensore inserito farò l'attach
+
+            if(lastID == null)
+                throw new RuntimeException("Errore nell'inserimento di un nuovo sensore in seguito alla disattivazione di un altro");
+            map.clear();
+            map.put("id", lastID);
+            Sensor insertedSensor = sensorDAO.getSensors(map).getFirst();
+            for(SensorMonitor sm : sensorMonitors){//NOTA: i sensori iniziali sono attacchati nel Main
+                changingSensor.detach(sm);
+                insertedSensor.attach(sm);
+            }
             closeTicket(ticketId);
 
         }catch (SQLException e){

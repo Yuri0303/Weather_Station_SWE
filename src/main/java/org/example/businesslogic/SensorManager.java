@@ -13,18 +13,24 @@ import java.util.ArrayList;
 
 public class SensorManager extends Thread {
     //TODO: sincronizza con semaforo così che solo un thread alla volta può accedere al database
-
+    private SharedListActiveSensors sharedListActiveSensors = new SharedListActiveSensors();
 
     @Override
     public void run() {
         try (SensorDAO sensorDAO = new SensorDAO(); MeasurementDAO measurementDAO = new MeasurementDAO()){
-            ArrayList<Sensor> activeSensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);
 
+            sharedListActiveSensors.acquireMutex();
+            ArrayList<Sensor> activeSensors = sharedListActiveSensors.getActualActiveSensors();
+
+            //ArrayList<Sensor> activeSensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);
             for(Sensor s : activeSensors){
                 float newMeasure = s.measure();
                 int lastMeasurementId = measurementDAO.addMeasurement(createMeasurement(newMeasure, s.getId()));
                 sensorDAO.updateLastMeasurement(s.getId(), lastMeasurementId);
+                s.notifyObservers();
             }
+
+            sharedListActiveSensors.releaseMutex();
             sleep(Duration.ofMinutes(3));
         } catch (SQLException e) {
             System.err.println("Errore durante la registrazione di nuove misure - Errore del sensor manager");
