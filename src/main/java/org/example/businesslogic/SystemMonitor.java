@@ -6,6 +6,7 @@ import org.example.orm.SensorDAO;
 import org.example.orm.TicketDAO;
 
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -15,25 +16,35 @@ public class SystemMonitor extends Thread{
     //TODO: metodo run di thread, dove si prende la lista dei sensori ACTIVE e nel caso apre i ticket
     //TODO: sincronizza con semaforo così che solo un thread alla volta può accedere al database
 
-    private SharedListActiveSensors sharedListActiveSensors = new SharedListActiveSensors();
+    //private SharedListActiveSensors sharedListActiveSensors = new SharedListActiveSensors();
 
     @Override
-    public void run(){
-        try {
-            sharedListActiveSensors.acquireMutex();
-            ArrayList<Sensor> activeSensors = sharedListActiveSensors.getActualActiveSensors();
-            for(Sensor s : activeSensors){
-                boolean sOk = checkSensorValues(s.getId());
-                if(!sOk)
-                    openTicket(s.getId());
+    public void run() {
+        while (!isInterrupted()) {
+            try  {
+                DatabaseMutex.mutex.acquire();
+                //sharedListActiveSensors.acquireMutex();
+                //FIXME: Usare direttamente i DAO
+                //ArrayList<Sensor> activeSensors = sharedListActiveSensors.getActualActiveSensors();
+                try (SensorDAO sensorDAO = new SensorDAO()) {
+
+                    ArrayList<Sensor> activeSensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);
+                    for (Sensor s : activeSensors) {
+                        boolean sOk = checkSensorValues(s.getId());
+                        if (!sOk)
+                            openTicket(s.getId());
+                    }
+                } catch (SQLException e) {
+                    System.err.println("Error in SystemMonitor thread: " + e.getMessage());
+                } finally {
+                    DatabaseMutex.mutex.release();
+                }
+                Thread.sleep(Duration.ofMinutes(4));
+            } catch (InterruptedException e) {
+                System.err.println("SystemMonitor interrupted: " + e.getMessage());
+                interrupt();
             }
-            sharedListActiveSensors.releaseMutex();
-        }catch (InterruptedException e){
-
-        }catch (SQLException e){
-
         }
-
     }
 
     private boolean checkSensorValues(int sensorId) {
@@ -74,7 +85,7 @@ public class SystemMonitor extends Thread{
         return true;
     }
 
-    private void openTicket(int sensorId){//fixme l'ho reso privato, tanto è usato solo qui
+    private void openTicket(int sensorId){
         try (TicketDAO ticketDAO = new TicketDAO()) {
             ticketDAO.addTicket(sensorId);
         } catch (SQLException e) {

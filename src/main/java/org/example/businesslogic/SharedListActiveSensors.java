@@ -8,7 +8,7 @@ import org.example.orm.SensorDAO;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
-
+//FIXME: Da eliminare in favore di DatabaseMutex (?)
 //fixme non so se va qui nella business logic, ma deve usare i DAO -> nel domain model non deve stare e nell'orm neache perché non deve fare lei le query
 public class SharedListActiveSensors {
     private ArrayList<Sensor> activeSensors;

@@ -33,6 +33,7 @@ public class SensorDAO implements AutoCloseable {
                     SensorType myType = SensorType.valueOf(resultSet.getString("sensorType"));
                     SensorState myState = SensorState.valueOf(resultSet.getString("sensorState"));
 
+                    //FIXME: passare qua i sensorMonitor ai sensori?
                     Sensor sensor = switch (myType) {
                         case HUMIDITY -> new HumiditySensor(id, lastMeas, myType, myState);
                         case WIND -> new WindSensor(id, lastMeas, myType, myState);
@@ -80,6 +81,7 @@ public class SensorDAO implements AutoCloseable {
                     SensorType myType = SensorType.valueOf(resultSet.getString("sensorType").toUpperCase());
                     SensorState state = SensorState.valueOf(resultSet.getString("sensorState").toUpperCase());
 
+                    //FIXME: passare qua i sensorMonitor ai sensori?
                     Sensor sensor = switch (myType) {
                         case HUMIDITY -> new HumiditySensor(id, lastMeas, myType, state);
                         case WIND -> new WindSensor(id, lastMeas, myType, state);
@@ -116,22 +118,29 @@ public class SensorDAO implements AutoCloseable {
         }
     }
 
-    public void addSensor(SensorType sensorType) throws SQLException{
-        String query = "INSERT INTO \"Sensor\" (lastMeasurementId, sensorType, sensorState) VALUES (?, ?, ?)";
+    //ho aggiunto returning id nella clausola di insert visto che postgresql lo permette
+    public Integer addSensor(SensorType sensorType) throws SQLException{
+        String query = "INSERT INTO \"Sensor\" (lastMeasurementId, sensorType, sensorState) VALUES (?, ?, ?) RETURNING id";
 
         try (PreparedStatement statement = connection.prepareStatement(query)){
             statement.setNull(1, Types.INTEGER);
             statement.setString(2, sensorType.name());
             statement.setString(3, SensorState.ACTIVE.name());
 
-            statement.executeUpdate();
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next())
+                    //throw new SQLException("addSensor failure");
+                    return resultSet.getInt("id");
+                return null;    //per come gestito nel MaintainerController
+            }
         }catch (SQLException e){
             System.err.println("Errore durante l'inserimento di un nuovo sensore: " + e.getMessage());
-            e.getStackTrace();
+            throw e;
         }
     }
 
-    public Integer addSensorReturningId(SensorType sensorType) throws SQLException{//todo testare questa nuova funzione
+    //FIXME: da rimuovere
+    /*public Integer addSensorReturningId(SensorType sensorType) throws SQLException{//todo testare questa nuova funzione
         String query = "INSERT INTO \"Sensor\" (lastMeasurementId, sensorType, sensorState) VALUES (?, ?, ?)";
         Integer generatedId = null;
 
@@ -155,7 +164,7 @@ public class SensorDAO implements AutoCloseable {
             e.getStackTrace();
         }
         return generatedId;
-    }
+    }*/
 
     public void updateLastMeasurement(int sensorId, int newLastMeasurementId) throws RuntimeException {
         try (PreparedStatement statement = connection.prepareStatement("UPDATE \"Sensor\" SET lastMeasurementId = ? WHERE id = ?")) {
@@ -172,7 +181,7 @@ public class SensorDAO implements AutoCloseable {
     }
 
     @Override
-    public void close() throws SQLException{
+    public void close() throws SQLException {
         if(connection != null)
             this.connection.close();
     }

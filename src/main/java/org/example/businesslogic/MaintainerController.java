@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+//TODO: Manca da sistemare questo. Perché changeOrRepair come parametro?    |   L'observer non funziona bene (guardare discord)
 public class MaintainerController {
     private final Maintainer maintainer;
 
@@ -49,7 +50,7 @@ public class MaintainerController {
     }
 
 
-    //todo nei test si deve inserire i sensorMonitor. NOTA: ho assunto che possano esere anche più di uno per rendere il prgramma più flessibile
+    //todo nei test si deve inserire i sensorMonitor. NOTA: ho assunto che possano esere anche più di uno per rendere il programma più flessibile
     public void changeSensor(int ticketId, ArrayList<SensorMonitor> sensorMonitors) throws RuntimeException {//todo rivedere il test per le nuove funzionalità di attach, destach e per il lancio dell'ecczione se l'inserimento del nuovo sensore non va a buon fine
         try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
             Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId, maintainer.getId());
@@ -64,14 +65,15 @@ public class MaintainerController {
             changingSensor = sensors.getFirst();
 
             sensorDAO.changeSensorState(sensorId, SensorState.DEACTIVATED);
-            Integer lastID = sensorDAO.addSensorReturningId(changingSensor.getSensorType());//mi deve restituire l'ultimo sensore inserito in qualche modo, all'ultimo sensore inserito farò l'attach
+            Integer lastID = sensorDAO.addSensor(changingSensor.getSensorType());//mi deve restituire l'ultimo sensore inserito in qualche modo, all'ultimo sensore inserito farò l'attach
 
             if(lastID == null)
                 throw new RuntimeException("Errore nell'inserimento di un nuovo sensore in seguito alla disattivazione di un altro");
             map.clear();
             map.put("id", lastID);
             Sensor insertedSensor = sensorDAO.getSensors(map).getFirst();
-            for(SensorMonitor sm : sensorMonitors){//NOTA: i sensori iniziali sono attacchati nel Main
+            //FIXME: Non funziona perché i sensori sono istanze prese dal database, che non avranno alcun observer attaccato. Inoltre, io ne metterei solo uno
+            for(SensorMonitor sm : sensorMonitors){//NOTA: i sensori iniziali sono attaccati nel Main
                 changingSensor.detach(sm);
                 insertedSensor.attach(sm);
             }
@@ -84,8 +86,8 @@ public class MaintainerController {
     }
 
 
-    public String repairSensor(double repairOrChange, int ticketId){//la probabilità viene passata come parameetro altrimenti risulta troppo difficile da testare
-        if(repairOrChange < 0.88){
+    public String repairSensor(double repairOrChange, int ticketId, ArrayList<SensorMonitor> sensorMonitors){//la probabilità viene passata come parametro altrimenti risulta troppo difficile da testare
+        if(repairOrChange < 0.88) {
 
             try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
                 Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId, maintainer.getId());
@@ -103,7 +105,7 @@ public class MaintainerController {
 
         } else {
             try {
-                changeSensor(ticketId);
+                changeSensor(ticketId, sensorMonitors);
                 System.out.println("Il sensore è stato sostituito");
                 return "sensore_sostituito";
             } catch (RuntimeException e) {

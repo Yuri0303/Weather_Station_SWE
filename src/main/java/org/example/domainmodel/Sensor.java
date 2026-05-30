@@ -20,7 +20,7 @@ public abstract class Sensor extends Observable {
         this.sensorState = sensorState;
     }
 
-    @Override   //TODO questa funzioanlità di notifica è stata implementata ma mai usata. Avevemo fatto qualcosa di diverso? Perché se sì l'obsterver non è mai usato all'interno del codice. Inoltre, per come è stato impostato, è responsabilità del sensore notificare il SensorMonitor, va bene?
+    @Override   //TODO questa funzionalità di notifica è stata implementata ma mai usata. Avevemo fatto qualcosa di diverso? Perché se sì l'obsterver non è mai usato all'interno del codice. Inoltre, per come è stato impostato, è responsabilità del sensore notificare il SensorMonitor, va bene?
                 // FIXME credo che vada chiamata all'interno della funzione che esegue le misurazioni o in SystemMonitor.checkSensorValues()
     public void notifyObservers() {
         for (Observer o : observers) {
