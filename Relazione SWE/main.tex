@@ -54,13 +54,11 @@
 
 \section{Presentazione del progetto}
 \subsection{Statement}
-Il software è un sistema composto principalmente da due parti: misurazione di alcune grandezze fisiche meteorologiche ad opera di alcuni sensori, tali misurazioni saranno visibili dagli utenti che desidereranno vederle,
-e sistema di notificazione agli utenti qualora una di queste misurazioni dovesse violare dei limiti impostati nelle "AlertRule" dall'utente stesso. Vi è inoltre un sistema interno che si occupa della sorveglianza dei sensori: qualora si dovessero riscontrare misurazioni anomale scatterà l'apertura di un ticket e ci sarà un manutentore che provvederà alla riparazione o alla sostituzione del sensore guasto.
+Il software sviluppato è un sistema composto principalmente da due parti: misurazione di alcune grandezze fisiche meteorologiche ad opera di alcuni sensori, tali misurazioni saranno visibili dagli utenti che desidereranno vederle, e sistema di notificazione agli utenti iscritti qualora una di queste misurazioni dovesse violare dei limiti impostati nelle "AlertRule" dall'utente stesso. Vi è inoltre un sistema interno che si occupa della sorveglianza dei sensori: qualora si dovessero riscontrare misurazioni anomale scatterà l'apertura di un ticket e ci sarà un manutentore che provvederà alla riparazione o alla sostituzione del sensore guasto.
 
 \subsection{Pratiche e ambienti di sviluppo}
-Il software è stato interamente sviluppato in Java, mentre per il database abbiamo è stato usato PostGreSQL mediante la libreria JBDC.
-Tutti i diagrammi sono stati realizzati con Gaphor, tranne il modello relazionale che è stato realizzato mediante il sito DrawSQL.app.
-Abbiamo optato per la separazione
+Il software è stato interamente sviluppato in Java, mentre per il database è stato usato PostGreSQL mediante la libreria JBDC. Tutti i diagrammi sono stati realizzati con Gaphor, tranne il modello relazionale che è stato realizzato mediante il sito DrawSQL.app.
+Per quanto riguarda la progettazione, abbiamo optato per la separazione del software in tre diversi package:
 \begin{itemize}
     \item \textbf{Business Logic}: per le classi che implementano la logica di business del sistema.
     \item \textbf{Domain Model}: contiene le classi che rappresentano le entità del sistema.
@@ -80,7 +78,7 @@ Prima di passare alla presentazione delle varie classi, ecco di seguito il Depen
 
 \section{Progettazione}
 \subsection{Use Case Diagram}
-L'attore User è il cliente utilizzatore dei servizi del software, può di base leggere le misurazioni effettuate oppure impostare una alert rule. L'Admin svolge l'esecizio di sorveglianza manuale del corretto funzionamento dei sensori, così come quello di amministratore generale del sistema, è l'unica entità che può bloccare un utente. Il monitor di sistema svolge una sorveglianza automatica (periodica) in merito al corretto funzionamento dei sensori. Sia quest'ultimo che l'admin possono aprire dei ticket in seguito al riscontro di un'anomalia, ticket che sarà preso da uno dei Maintainer, che interverranno sul sensore segnalato riparandolo o sostituendolo
+L'attore \textbf{User} è il cliente utilizzatore dei servizi del software, può di base leggere le misurazioni effettuate oppure impostare una alert rule. \textbf{L'Admin} svolge l'esecizio di sorveglianza manuale del corretto funzionamento dei sensori, così come quello di amministratore generale del sistema, è l'unica entità che può bloccare un utente. Il \textbf{SystemMonitor} svolge una sorveglianza automatica (periodica) in merito al corretto funzionamento dei sensori. Sia quest'ultimo che l'admin possono aprire dei ticket in seguito al riscontro di un'anomalia, ticket che sarà preso da uno dei \textbf{Maintainer}, che interverranno sul sensore segnalato riparandolo o sostituendolo
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{Images/Use_Case_User}
@@ -150,7 +148,7 @@ Contiene un oggetto nameClassDAO per ogni classe del domain model presente nel d
 \subsection{Navigation Diagram} % da implementare
 
 \section{Implementazione}
-  \subsection{Domain Model} % Corretto \subsetion -> \subsection
+  \subsection{Domain Model}
     \subsubsection{SystemUser}
     Classe astratta che identifica un generico utilizzatore del software. Più nello specifico, è colui che può eseguire un'operazione di login mediante \texttt{email e password}.
     \begin{itemize}
@@ -168,7 +166,7 @@ Contiene un oggetto nameClassDAO per ogni classe del domain model presente nel d
       Classe che definisce gli strumenti di misurazione. La classe in sé è astratta ed è implementata nei 4 tipi di sensore sviluppati: \texttt{TemperatureSensor}, \texttt{PressureSensor}, \texttt{WindSensor}, \texttt{HumiditySensor}. Nessuno di questi in realtà introduce nuovi attributi, ciò che li contraddistingue è la diversa implementazione del metodo \texttt{measure()} \textbf{FIXME : è stata una buona idea averlo implementato così?}.
     \subsubsection{Design Pattern Observer}
       \label{observer}
-      \textbf{TODO: mettere un'immagine del class diagram con l'observer ritagliato}
+      \textbf{TODO: mettere un'immagine del class diagram con l'observer ritagliato e correggere il testo poiché l'observer sarà cambiato}
       Vediamo che i Sensor sono i nostri observable, e sono osservati dal SensorMonitor. La classe Sensor è già stata descritta qualche paragrafo sopra. Il SensorMonitor è una classe composta da due metodi privati usati nell'implementazione della funzione \texttt{update()} dell'interfaccia Observer. Tale funzione aggiungerà al db tutte le nuove Notification create in seguito a nuove violazioni delle varie AlertRule. \textbf{TODO: il funzionamento in merito alla chiamata di notify non è ancora stato implementato}
     \subsubsection{Enumerazione}
       Sono presenti due classi che introducono due diverse enumerazioni:
@@ -178,40 +176,70 @@ Contiene un oggetto nameClassDAO per ogni classe del domain model presente nel d
       \end{itemize}
 
   \subsection{Business Logic}
-    Le classi di questo package hanno lo scopo di fornire
+    Le classi di questo package hanno lo scopo di fornire i metodi con cui le varie entità possono interagire col software. In pratica implementano gli Use Cases dei nostri Use Case Diagrams. La caratteristica trasversale di tutte le classi di questo package è che sfruttano i metodi dell'ORM per \textbf{accedere indirettamente} al db. Sarà infatti compito delle classi del package ORM implementare le query richieste.
     \subsubsection{AdminDatabaseController}
-    \subsubsection{SystemMonitor}
+    Classe usata principalmente nel testing che ha i metodi per creare la base dati, creare le istanze di default e resettare a zero il database. I metodi della classe altro non fanno che leggere i file della cartella Resources. NOTA: questa è l'unica classe che fa eccezione alla descrizione generale del paragrafo precendente.
     \subsubsection{AdminController}
+    Classe che implementa i metodi \texttt{readDataHistory(...)}, con la possibilità di leggere i dati relativi o a un sensore specifico o a tutti i sensori, \texttt{viewUsers()} per vedere tutti gli utenti iscritti e \texttt{blockUser(int userId)} per bloccare un determinato utente. Infine \texttt{openTicket(int sensorId)} per aprire manualmente un ticket per un relativo sensore. In merito a quest'ultimo, l'idea è che l'admin svolga anche il ruolo di supervisore del corretto funzionamento dei sensori.
     \subsubsection{MaintainerController}
+    La prima cosa che c'è da dire su questa classe è che è caratterizzata anche da un attributo di tipo Maintainer, inizializzato nel costruttore tramite una variabile del medesimo tipo. In alcuni metodi infatti è necessario conoscere l'id del maintanier operante, si rende quindi necessaria la presenza di tale attributo. Oltre all'attributo appena descritto troviamo i metodi \texttt{viewOpenTickets(), takeTicket(), closeTicket()} che permettono di selezionar eun ticket disponibile, quindi acquisirlo se non è già stato preso. La chiusura avverrà solo in seguito alla riparazione o sostituzione di un sensore, ad opera rispettivamente delle funzioni \texttt{repairSensor(Double reapairOrChange, int ticketId) e changeSensor(int ticketId)}. Le funzioni sono simulate probabilisticamente mediante la variabile repairOrChange.
+    \subsubsection{SystemMonitor}
+    Il SystemMonitor è un thread parallelo al Main program il cui metodo \texttt{run()} (opportunamente sovrascritto dalla classe base Thread) svolge in automatico la funzione di controllo del valore registrato dai sensori mediante la funzione \texttt{checkSensorValues(int sensorId)}, qualora non risultasse ok (output false) il thread aprirà un ticket per tale sensore. Nel paragrafo successivo sarà detto qualcosa in più sulla sincronizzazione tra i thread SystemMonitor e SensorManager.
     \subsubsection{SensorManager}
+    Il SensorManager è l'altro thread menzionato nel paragrafo precedente. Il suo \texttt{run()} è il metodo del software che aziona i sensori, consentendo loro di misurare tramite il metodo \texttt{measure()}. La misura viene poi opportunamente salvata nel database. La sincronizzazione tra questi due thread è realizzata mediante la classe DatabaseMutex, essa in realtà contiene solo un \texttt{Semaphore(1)} come attributo statico. I due thread prima di agire devono eseguire l'acquire di tale mutex. La logica è che nel mentre i sensori vengono controllati non possano eseguire ulteriori misurazioni, che sarebbero a loro volta errate in caso di guasto.
     \subsubsection{SensorMonitor}
-    \subsubsection{StaffLoginController}
+    Classe che implementa l'interfaccia Observer. Il suo metodo \texttt{update(...)} si occupa di creare e inserire nel database le notifiche scaturite in seguito alla violazione di un bound per una certa grandezza fisica. La verifica è effettuata mediante il metodo \texttt{verifyAlertRule(...)}.
     \subsubsection{UserController}
+    Classe che definisce cosa un cliente iscritto e non bloccato può fare. Può leggere le misurazioni con \texttt{readData(...) e readDataHistory(...)}. Può settare una nuova alert rule personalizzata mediante \texttt{setAlertRule}, un appunto che si può fare in merito a tale funzione è che è stata realizzata in modo da consentire di imporre sia un intervallo di tolleranza che solamente un limite inferiore o superiore per le misurazioni. Ad esempio, si può imporre di essere avvisati sia che la temperatura T sia: $T<20$, $T>30$ che $20<T<30$. Il cliente può inoltre leggere le notifiche non lette o direttamente lo storico delle notifiche con i metodi \texttt{viewUnreadNotification(...) e viewNotificationHistory(...)}.
+    \subsubsection{StaffLoginController}
+    Classe che contiene i metodi \texttt{adminLogin(String email, String password) e maintainerLogin(String email, String password)}, i login dello staff appunto. Si rende evidente che questo software adotta la procedura di login mediante le credenziali email e password. \textbf{i metodi di registrazione??}
     \subsubsection{UserLoginController}
+    Classe che contiene i metodi \texttt{login(String email, String password) e register(...)}. Questi sono solo per lo User.
 
   \subsection{ORM}
-    \subsubsection{DatabaseManager}
-    \subsubsection{AdminDAO}
+    \subsubsection{DatabaseManager e interfaccia AutoClosable}
+    Databasemanager è la classe che si occupa di fornire la connessione al nostro database. La logica di connessione al database è centralizzato in questa unica classe, infatti i parametri d'accesso sono tenuti solamente qui. La connessione è restituita mediante il metodo \texttt{getConnection(...)} come oggetto di tipo Connection. Nei vari metodiDAO la Connection sarà chiusa in automatico al termine del codice di ognuno di essi grazie all'implementazione dell'interfaccia AutoClosable, in merito a ciò può notare come ogni oggetto DAO sia inizializzato nel blocco resources dei vari try al fine di consentire il corretto funzionamento di tale maccanica.
+    \subsubsection{AdminDAO e MaintainerDAO}
+    Contiengono il metodo \texttt{login(...)} per ottenere la relativa istanza dal db. Contiene inoltre i metodi per creare, resettare e creare le istanze di default nel db.
     \subsubsection{AlertRuleDAO}
-    \subsubsection{MaintainerDAO}
+    Ha il metodo \texttt{addAlertRule(...)} per inserire nel db una nuova alert rule e il metodo \texttt{getAlertRule(...)} per eseguire una select che può agire sulla base o di una Map<String, Object> o su una variabile SensorType in ingresso.
     \subsubsection{MeasurementDAO}
+    Similmente alla precedente AlertRuleDAO, c'è un metodo \texttt{addMeasurement(...)} per l'inserimento di nuove misure e un metodo \texttt{getMeasurement(...)} che può prendere in ingresso o soltanto la solita generica Map<String, Object> oppure, oltre a questa, anche un intervallo di date che definiranno l'intervallo temporale di cui si desidera leggere le misure effettuate dai sensori.
     \subsubsection{NotificationDAO}
+    Qui è presente il metodo \texttt{registerNotification(...)} che inserisce una nuova notifca nel db. Ci sono i metodi \texttt{viewUnreadNotification(...), viewNotificationHistory(int userId, int lastDays)} che filtrano la lettura delle notifiche rispettivamente per avvenuta lettura o meno e se sono risalenti a non più di \texttt{lastDays} giorni fa. In seguito alla chiamata di \texttt{viewUnreadNotification(...)} da parte di UserController, ci sarà anche una chiamata al metodo \texttt{setRead()} che setterà a true il campo isRead della tupla relativa alla notifica appena letta. \textbf{(qui potrebbe starci uno snippet linkato)}
     \subsubsection{SensorDAO}
+    Ci sono due metodi per eseguire una select dei sensori: il metodo \texttt{getSensors(Map<String. Object> map)} e \texttt{getSensorByState(SensorState sensorState)}. \textbf{mettere snippet} A causa della gerarchia ereditaria, con conseguente presenza di diversi costruttori per ogni sensore, si è reso necessario uno switch-cases a seconda del tipo di sensore. Vi è poi il metodo \texttt{changeSensorState(int sensorID, SensorState newState)} che si occupa di modificare lo status di un sensore in seguito a qualche evento: l'apertura di un ticket fa sì che un sensorState venga settato a FAULTY, la riparazione lo fa tornare nello stato ACTIVE, mentre la sostituzione lo rende permanentemente DEACTIVATED. L'inserimento di un nuovo sensore è consentito dal metodo \texttt{addSensor(...)}. Non esiste un metodo per la rimozione dei sensori: i sensori DEACTIVATED rimangono nel database come tali al fine non creare tuple orfane all'interno del databse stesso, l'id del sensore è infatti chiave esterna di alcune tabelle. Infine abbiamo il metodo \texttt{updateLastMeasurement(...)} che modifica l'id dell'ultima misura effettuata da un sensore, tale metodo è ovviamente chiamato al momento della misura del sensore stesso.
     \subsubsection{TicketDAO}
+    Per inserire nuovi ticket c'è \texttt{addTicket(...)}, in ordine poi abbiamo \texttt{getOpenTicket(), takeTicket(...), closeTicket(...)} per le rispettive azioni. Vi è inoltre il metodo \texttt{getSensorIdByTicket(...)}, usato nel MaintainerController \textbf{mettere snippet}.
     \subsubsection{UserDAO}
+    Il metodo \texttt{getUsers(Map<String, Object> map)} esegue una select degli utenti col solito criterio della mappa. CI sono poi i metodi per la registrazione e il login e il metodo \texttt{blockUser(int userId)} per settare a true il campo isBlocked nella tabelle User.
 
   \subsection{Database}
+    \subsubsection{Schema ER}
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.95\textwidth]{Images/ER_scheme}
+        \caption{ER Scheme}
+        \label{fig:ER_scheme}
+      \end{figure}
+    \subsubsection{Modello Relazionale}
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.95\textwidth]{Images/relationship_model}
+        \caption{Relationship Model}
+        \label{fig:relationship_model}
+      \end{figure}
   \subsection{Interfaccia}
 
 \section{Testing}
 \subsection{Business Logic Test}
-\subsubsection{AdminControllerTest}
-\subsubsection{MaintainerControllerTest}
-\subsubsection{StaffLoginControllerTest}
-\subsubsection{UserController}
-\subsubsection{UserLoginController}
+  \subsubsection{AdminControllerTest}
+  \subsubsection{MaintainerControllerTest}
+  \subsubsection{StaffLoginControllerTest}
+  \subsubsection{UserController}
+  \subsubsection{UserLoginController}
 
 \subsection{Domain Model}
-\subsubsection{AlertRuleTest}
+  \subsubsection{AlertRuleTest}
 
 \end{document}
