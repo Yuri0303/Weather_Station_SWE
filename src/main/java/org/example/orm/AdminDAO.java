@@ -45,36 +45,30 @@ public class AdminDAO implements AutoCloseable{
         return admin;
     }
 
-    public boolean resetDatabase(String sql) {
+    public void resetDatabase(String sql) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
-            return true;
         } catch (SQLException e) {
             System.err.println("Errore durante il reset del Database: " + e.getMessage());
         }
-        return false;
     }
 
-    public boolean createDatabase(String sql) {
+    public void createDatabase(String sql) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
-            return true;
         } catch (SQLException e) {
             System.err.println("Errore durante la creazione del Database: " + e.getMessage());
         }
-        return false;
     }
 
-    public boolean generateDefaultInstances(String sql) {
+    public void generateDefaultInstances(String sql) {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
-            return true;
         } catch (SQLException e) {
             System.err.println("Errore durante la generazione del Database default: " + e.getMessage());
         }
-        return false;
     }
 }

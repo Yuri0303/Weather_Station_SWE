@@ -24,7 +24,7 @@ public class NotificationDAO implements AutoCloseable {
     public void registerNotification(Notification notification) throws RuntimeException {
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO \"Notification\" (message, isRead, userId, dateTime) VALUES (?, FALSE, ?, ?) ")) {
             statement.setString(1, notification.getMessage());
-            statement.setInt(2, notification.getIdUser());
+            statement.setInt(2, notification.getUserId());
             statement.setTimestamp(3, java.sql.Timestamp.valueOf(notification.getDateTime()));
 
             int insertCount = statement.executeUpdate();
@@ -37,7 +37,7 @@ public class NotificationDAO implements AutoCloseable {
         }
     }
 
-    public ArrayList<Notification> viewUnreadNotification(int userId) throws SQLException {
+    public ArrayList<Notification> viewUnreadNotifications(int userId) throws SQLException {
         String query = "SELECT * FROM \"Notification\" WHERE userId = ? AND isRead = false";
         ArrayList<Notification> notifications = new ArrayList<>();
 

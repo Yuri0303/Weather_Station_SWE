@@ -14,14 +14,11 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 public class MaintainerControllerTest {
-
-    Maintainer maintainer;
     MaintainerController maintainerController;
     AdminDatabaseController adminDatabaseController;
     @BeforeEach
     void setUp() {
-        maintainer = new Maintainer(1, "Luke", "Skywalker", "lukeskywalker@test.it");
-        maintainerController = new MaintainerController(maintainer);
+        maintainerController = new MaintainerController();
 
         adminDatabaseController = new AdminDatabaseController();
         try{
@@ -50,7 +47,7 @@ public class MaintainerControllerTest {
             ticketDAO.addTicket(3);
             ticketDAO.addTicket(4);
 
-            ticketDAO.closeTicket(3, maintainer.getId());
+            ticketDAO.closeTicket(3, 1);
 
             ArrayList<Ticket> view = maintainerController.viewOpenTickets();
 
@@ -67,7 +64,7 @@ public class MaintainerControllerTest {
         }catch (SQLException e){
             System.err.println(e.getMessage());
         }
-        assertDoesNotThrow(() -> maintainerController.takeTicket(1));
+        assertDoesNotThrow(() -> maintainerController.takeTicket(1, 1));
     }
 
     @Test
@@ -77,7 +74,7 @@ public class MaintainerControllerTest {
         }catch (SQLException e){
             System.err.println(e.getMessage());
         }
-        assertThrows(SQLException.class ,() -> maintainerController.takeTicket(2));
+        assertThrows(SQLException.class ,() -> maintainerController.takeTicket(2, 1));
     }
 
     @Test
@@ -88,20 +85,20 @@ public class MaintainerControllerTest {
             System.err.println(e.getMessage());
         }
         try {
-            maintainerController.takeTicket(1);
+            maintainerController.takeTicket(1, 1);
         } catch (SQLException e) {
            e.getStackTrace();
         }
 
-        assertThrows(SQLException.class ,() -> maintainerController.takeTicket(1));
+        assertThrows(SQLException.class ,() -> maintainerController.takeTicket(1, 1));
     }
 
     @Test
     void closeTicket_success() {
         try (TicketDAO ticketDAO = new TicketDAO()){
             ticketDAO.addTicket(1);
-            maintainerController.takeTicket(1);
-            assertDoesNotThrow(() -> maintainerController.closeTicket(1));
+            maintainerController.takeTicket(1, 1);
+            assertDoesNotThrow(() -> maintainerController.closeTicket(1, 1));
         }catch (SQLException e){
             System.err.println("Test viewOpenTicket exception");
         }
@@ -111,9 +108,9 @@ public class MaintainerControllerTest {
     void closeTicket_alreadyClosed() {
         try (TicketDAO ticketDAO = new TicketDAO()) {
             ticketDAO.addTicket(1);
-            maintainerController.takeTicket(1);
-            maintainerController.closeTicket(1);
-            assertThrows(SQLException.class, () -> maintainerController.takeTicket(1));
+            maintainerController.takeTicket(1, 1);
+            maintainerController.closeTicket(1, 1);
+            assertThrows(SQLException.class, () -> maintainerController.takeTicket(1, 1));
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
@@ -124,7 +121,7 @@ public class MaintainerControllerTest {
         try (TicketDAO ticketDAO = new TicketDAO()) {
             ticketDAO.addTicket(1);
             ticketDAO.takeTicket(1, 2);
-            assertThrows(SQLException.class, () -> maintainerController.closeTicket(1));
+            assertThrows(SQLException.class, () -> maintainerController.closeTicket(1, 1));
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
@@ -137,9 +134,9 @@ public class MaintainerControllerTest {
             Map<String, Object> param = new HashMap<>();
             sensorDAO.addSensor(SensorType.TEMPERATURE);
             ticketDAO.addTicket(13);
-            maintainerController.takeTicket(1);
+            maintainerController.takeTicket(1, 1);
 
-            maintainerController.changeSensor(1);
+            maintainerController.changeSensor(1, 1);
 
             //vediamo se le modifiche sono avvenute
             param.put("id", 13);
@@ -163,9 +160,9 @@ public class MaintainerControllerTest {
             ticketDAO.addTicket(13);
             ticketDAO.takeTicket(1, 1);
 
-            maintainerController.changeSensor(1);
+            maintainerController.changeSensor(1, 1);
 
-            assertThrows(RuntimeException.class, () -> maintainerController.changeSensor(1));
+            assertThrows(RuntimeException.class, () -> maintainerController.changeSensor(1, 1));
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
@@ -178,7 +175,7 @@ public class MaintainerControllerTest {
             ticketDAO.addTicket(13);
             ticketDAO.takeTicket(1, 2); //Un altro maintainer prende il ticket
 
-            assertThrows(RuntimeException.class, () -> maintainerController.changeSensor(1));
+            assertThrows(RuntimeException.class, () -> maintainerController.changeSensor(1, 1));
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
@@ -201,12 +198,12 @@ public class MaintainerControllerTest {
                 ArrayList<Sensor> target = sensorDAO.getSensors(map);
                 target.getFirst().sensorStateToFaulty();
 
-                String result = maintainerController.repairSensor(repairChance, 1);
+                String result = maintainerController.repairSensor(repairChance, 1, 1);
 
                 if (repairChance < 0.88) {
                     target = sensorDAO.getSensors(map);
                     assertEquals(SensorState.ACTIVE, target.getFirst().getSensorState());
-                    assertThrows(SQLException.class, () -> ticketDAO.closeTicket(1, maintainer.getId()));   //per verificare che il ticket sia stato chiuso da repairSensor()
+                    assertThrows(SQLException.class, () -> ticketDAO.closeTicket(1, 1));   //per verificare che il ticket sia stato chiuso da repairSensor()
                     assertEquals("sensore_riparato", result);
                     fixed = true;
                 } else {

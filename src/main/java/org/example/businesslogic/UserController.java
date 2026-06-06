@@ -30,7 +30,7 @@ public class UserController {
         }
     }
 
-    public ArrayList<Measurement> readDataHistory(LocalDateTime starDate, LocalDateTime endDate){
+    public ArrayList<Measurement> readDataHistory(LocalDateTime startDate, LocalDateTime endDate){
         try (SensorDAO sensorDAO = new SensorDAO(); MeasurementDAO measurementDAO = new MeasurementDAO()){
             ArrayList<Sensor> sensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);
             Map<String, Object> map = new HashMap<>();
@@ -40,7 +40,7 @@ public class UserController {
                     map.put("id", idLastMeasurement);//mappa che contiene tutti gli id delle ultime misurazioni di tutti i sensori attivi. Potrebbero essere nulle
             }
 
-            return measurementDAO.getMeasurements(starDate, endDate, map);
+            return measurementDAO.getMeasurements(startDate, endDate, map);
         }catch (SQLException e){
             System.err.println("Errore durante la lettura delle attauli misurazioni da parte dell'utente " + e.getMessage());
             return null;
@@ -57,7 +57,7 @@ public class UserController {
 
     public ArrayList<Notification> viewUnreadNotifications(int userId) {
         try (NotificationDAO notificationDAO = new NotificationDAO()){
-            ArrayList<Notification> unreadNotifications = notificationDAO.viewUnreadNotification(userId);
+            ArrayList<Notification> unreadNotifications = notificationDAO.viewUnreadNotifications(userId);
             for (Notification it : unreadNotifications)
                 notificationDAO.setRead(it.getId());
 

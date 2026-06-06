@@ -21,17 +21,8 @@ public class AdminController {
         }
     }
 
-    public ArrayList<Measurement> readDataHistory(LocalDateTime startDate, LocalDateTime endDate, int sensorId) {
-        try (MeasurementDAO measurementDAO = new MeasurementDAO()) {
-            return measurementDAO.getMeasurements(startDate, endDate, Map.of("sensorId", sensorId));
-        }catch (SQLException e){
-            System.err.println("Errore durante la lettura dello storico dati" + e.getMessage());
-            return  null;
-        }
-    }
-
     public ArrayList<User> viewUsers() {
-        try (UserDAO userDAO = new UserDAO();) {
+        try (UserDAO userDAO = new UserDAO()) {
             return userDAO.getUsers(Map.of("isBlocked", false));
         }catch (SQLException e){
             System.err.println("Errore durante la lettura degli utenti" + e.getMessage());
@@ -41,9 +32,13 @@ public class AdminController {
 
     public void blockUser(int userId) {
         try (UserDAO userDAO = new UserDAO()) {
-            userDAO.blockUser(userId);
+            boolean success = userDAO.blockUser(userId);
+            if(success)
+               System.out.println("Utente bloccato correttamente");
+            else
+                throw new SQLException("success= "+success);
         }catch (SQLException e){
-            System.err.println("Errore durante il bloccaggio di un utente" + e.getMessage());
+            System.err.println("Errore durante il bloccaggio di un utente: " + e.getMessage());
         }
     }
 

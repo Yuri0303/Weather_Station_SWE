@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class User extends SystemUser {
 
     private boolean isBlocked;
-    private ArrayList<AlertRule> alertRules = new ArrayList<>();
 
     public User(int id, String firstname, String lastName, String email, boolean isBlocked) {
         super(id, firstname, lastName, email);

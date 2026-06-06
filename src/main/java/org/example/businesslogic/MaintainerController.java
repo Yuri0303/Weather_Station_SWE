@@ -13,12 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MaintainerController {
-    private final Maintainer maintainer;
-
-    public MaintainerController(Maintainer maintainer) {
-        this.maintainer = maintainer;
-    }
-
     public ArrayList<Ticket> viewOpenTickets(){
         try (TicketDAO ticketDAO = new TicketDAO()) {
             return ticketDAO.getOpenTickets();
@@ -29,28 +23,28 @@ public class MaintainerController {
 
     }
 
-    public void takeTicket(int ticketId) throws SQLException {
+    public void takeTicket(int ticketId, int maintainerId) throws SQLException {
         try (TicketDAO ticketDAO = new TicketDAO()){
-            ticketDAO.takeTicket(ticketId, maintainer.getId());
+            ticketDAO.takeTicket(ticketId, maintainerId);
         } catch (SQLException e) {
-            System.err.println("L'acquisizione del ticket da parte di maintainer " + maintainer.getId() + " non è andata a buon fine: " + e.getMessage());
+            System.err.println("L'acquisizione del ticket da parte di maintainer " + maintainerId + " non è andata a buon fine: " + e.getMessage());
             e.getStackTrace();
             throw e;
         }
     }
 
-    public void closeTicket(int ticketId) throws SQLException {
+    public void closeTicket(int ticketId, int maintainerId) throws SQLException {
         try (TicketDAO ticketDAO = new TicketDAO()) {
-            ticketDAO.closeTicket(ticketId, maintainer.getId());
+            ticketDAO.closeTicket(ticketId, maintainerId);
         }catch (SQLException e){
             System.err.println("Errore durante la chiusura del ticket" + e.getMessage());
             throw e;
         }
     }
 
-    public void changeSensor(int ticketId) throws RuntimeException {
+    public void changeSensor(int ticketId, int maintainerId) throws RuntimeException {
         try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
-            Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId, maintainer.getId());
+            Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId, maintainerId);
             if (sensorId == null) {
                 throw new RuntimeException("Ticket non mio oppure ticket già chiuso");
             }
@@ -67,7 +61,7 @@ public class MaintainerController {
             if(lastID == null)
                 throw new RuntimeException("Errore nell'inserimento di un nuovo sensore in seguito alla disattivazione di un altro");
 
-            closeTicket(ticketId);
+            closeTicket(ticketId, maintainerId);
 
         }catch (SQLException e){
             System.err.println("La sostituzione del sensore da parte identificato dal ticketId " + ticketId + " non è andata a buon fine");
@@ -75,16 +69,15 @@ public class MaintainerController {
         }
     }
 
-
-    public String repairSensor(double repairChance, int ticketId){  //la probabilità viene passata come parametro altrimenti risulta troppo difficile da testare
+    public String repairSensor(double repairChance, int ticketId, int maintainerId){  //la probabilità viene passata come parametro altrimenti risulta troppo difficile da testare
         if(repairChance < 0.88) {
 
             try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
-                Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId, maintainer.getId());
+                Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId, maintainerId);
                 if (sensorId == null) throw new SQLException("Sensore non trovato");
 
                 sensorDAO.changeSensorState(sensorId, SensorState.ACTIVE);
-                closeTicket(ticketId);
+                closeTicket(ticketId, maintainerId);
                 System.out.println("il sensore è stato riparato");
                 return "sensore_riparato";
 
@@ -95,7 +88,7 @@ public class MaintainerController {
 
         } else {
             try {
-                changeSensor(ticketId);
+                changeSensor(ticketId, maintainerId);
                 System.out.println("Il sensore è stato sostituito");
                 return "sensore_sostituito";
             } catch (RuntimeException e) {

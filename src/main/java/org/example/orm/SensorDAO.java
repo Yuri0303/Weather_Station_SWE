@@ -100,7 +100,6 @@ public class SensorDAO implements AutoCloseable {
         return sensors;
     }
 
-
     public void changeSensorState(int sensorId, SensorState newState) throws SQLException{
         String query = "UPDATE \"Sensor\" SET sensorState = ? WHERE id = ?";
 

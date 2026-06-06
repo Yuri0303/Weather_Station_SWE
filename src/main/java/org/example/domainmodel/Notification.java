@@ -6,7 +6,7 @@ public class Notification {
     private int id;
     private String message;
     private LocalDateTime dateTime;
-    private int idUser;
+    private int userId;
     private boolean isRead;
 
     public Notification(int id, String message, LocalDateTime dateTime, boolean isRead, int idUser) {
@@ -14,7 +14,7 @@ public class Notification {
         this.message = message;
         this.dateTime = dateTime;
         this.isRead = isRead;
-        this.idUser = idUser;
+        this.userId = idUser;
     }
     @Override
     public String toString() {
@@ -23,7 +23,7 @@ public class Notification {
                 ", message='" + message + '\'' +
                 ", dateTime=" + dateTime +
                 ", isRead=" + isRead +
-                ", idUser=" + idUser +
+                ", idUser=" + userId +
                 '}';
     }
 
@@ -39,8 +39,8 @@ public class Notification {
         this.id = id;
     }
 
-    public int getIdUser() {
-        return idUser;
+    public int getUserId() {
+        return userId;
     }
 
     public String getMessage() {
@@ -55,7 +55,7 @@ public class Notification {
 
         return id == that.id &&
                 isRead == that.isRead &&
-                idUser == that.idUser &&
+                userId == that.userId &&
                 java.util.Objects.equals(message, that.message) &&
                 // Confrontiamo le date ignorando eventuali rimasugli di nano/milli
                 java.util.Objects.equals(
@@ -66,6 +66,6 @@ public class Notification {
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(id, message, dateTime.truncatedTo(java.time.temporal.ChronoUnit.SECONDS), isRead, idUser);
+        return java.util.Objects.hash(id, message, dateTime.truncatedTo(java.time.temporal.ChronoUnit.SECONDS), isRead, userId);
     }
 }
