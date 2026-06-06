@@ -11,21 +11,13 @@ import java.util.ArrayList;
 import java.util.Map;
 
 
-public class SystemMonitor extends Thread{
-
-    //TODO: metodo run di thread, dove si prende la lista dei sensori ACTIVE e nel caso apre i ticket
-    //TODO: sincronizza con semaforo così che solo un thread alla volta può accedere al database
-
-    //private SharedListActiveSensors sharedListActiveSensors = new SharedListActiveSensors();
+public class SystemMonitor extends Thread {
 
     @Override
     public void run() {
         while (!isInterrupted()) {
             try  {
                 DatabaseMutex.mutex.acquire();
-                //sharedListActiveSensors.acquireMutex();
-                //FIXME: Usare direttamente i DAO
-                //ArrayList<Sensor> activeSensors = sharedListActiveSensors.getActualActiveSensors();
                 try (SensorDAO sensorDAO = new SensorDAO()) {
 
                     ArrayList<Sensor> activeSensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);

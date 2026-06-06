@@ -186,12 +186,12 @@ public class MaintainerControllerTest {
 
     @Test
     void repairSensor() {
-        double repairOrChange;
+        double repairChance;
         boolean fixed = false, changed = false;
         try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()) {
             while (!fixed || !changed) {
 
-                repairOrChange = Math.random();
+                repairChance = Math.random();
                 ticketDAO.addTicket(1);
                 ticketDAO.takeTicket(1, 1);
 
@@ -201,12 +201,12 @@ public class MaintainerControllerTest {
                 ArrayList<Sensor> target = sensorDAO.getSensors(map);
                 target.getFirst().sensorStateToFaulty();
 
-                String result = maintainerController.repairSensor(repairOrChange, 1);
+                String result = maintainerController.repairSensor(repairChance, 1);
 
-                if (repairOrChange < 0.88) {
+                if (repairChance < 0.88) {
                     target = sensorDAO.getSensors(map);
                     assertEquals(SensorState.ACTIVE, target.getFirst().getSensorState());
-                    assertThrows(SQLException.class, () -> ticketDAO.closeTicket(1, maintainer.getId()));//fixme forse questa non è necessaria
+                    assertThrows(SQLException.class, () -> ticketDAO.closeTicket(1, maintainer.getId()));   //per verificare che il ticket sia stato chiuso da repairSensor()
                     assertEquals("sensore_riparato", result);
                     fixed = true;
                 } else {

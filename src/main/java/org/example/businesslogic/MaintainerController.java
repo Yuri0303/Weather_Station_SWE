@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-//TODO: Manca da sistemare questo. Perché changeOrRepair come parametro?    |   L'observer non funziona bene (guardare discord)
 public class MaintainerController {
     private final Maintainer maintainer;
 
@@ -49,9 +48,7 @@ public class MaintainerController {
         }
     }
 
-
-    //todo nei test si deve inserire i sensorMonitor. NOTA: ho assunto che possano esere anche più di uno per rendere il programma più flessibile
-    public void changeSensor(int ticketId, ArrayList<SensorMonitor> sensorMonitors) throws RuntimeException {//todo rivedere il test per le nuove funzionalità di attach, destach e per il lancio dell'ecczione se l'inserimento del nuovo sensore non va a buon fine
+    public void changeSensor(int ticketId) throws RuntimeException {
         try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
             Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId, maintainer.getId());
             if (sensorId == null) {
@@ -69,14 +66,7 @@ public class MaintainerController {
 
             if(lastID == null)
                 throw new RuntimeException("Errore nell'inserimento di un nuovo sensore in seguito alla disattivazione di un altro");
-            map.clear();
-            map.put("id", lastID);
-            Sensor insertedSensor = sensorDAO.getSensors(map).getFirst();
-            //FIXME: Non funziona perché i sensori sono istanze prese dal database, che non avranno alcun observer attaccato. Inoltre, io ne metterei solo uno
-            for(SensorMonitor sm : sensorMonitors){//NOTA: i sensori iniziali sono attaccati nel Main
-                changingSensor.detach(sm);
-                insertedSensor.attach(sm);
-            }
+
             closeTicket(ticketId);
 
         }catch (SQLException e){
@@ -86,12 +76,12 @@ public class MaintainerController {
     }
 
 
-    public String repairSensor(double repairOrChange, int ticketId, ArrayList<SensorMonitor> sensorMonitors){//la probabilità viene passata come parametro altrimenti risulta troppo difficile da testare
-        if(repairOrChange < 0.88) {
+    public String repairSensor(double repairChance, int ticketId){  //la probabilità viene passata come parametro altrimenti risulta troppo difficile da testare
+        if(repairChance < 0.88) {
 
             try (SensorDAO sensorDAO = new SensorDAO(); TicketDAO ticketDAO = new TicketDAO()){
                 Integer sensorId = ticketDAO.getSensorIdByTicket(ticketId, maintainer.getId());
-                if (sensorId == null) throw new SQLException("Sensore non trovato");//fixme è possibile?
+                if (sensorId == null) throw new SQLException("Sensore non trovato");
 
                 sensorDAO.changeSensorState(sensorId, SensorState.ACTIVE);
                 closeTicket(ticketId);
@@ -105,7 +95,7 @@ public class MaintainerController {
 
         } else {
             try {
-                changeSensor(ticketId, sensorMonitors);
+                changeSensor(ticketId);
                 System.out.println("Il sensore è stato sostituito");
                 return "sensore_sostituito";
             } catch (RuntimeException e) {

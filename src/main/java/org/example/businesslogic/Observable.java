@@ -1,4 +1,6 @@
-package org.example.domainmodel;
+package org.example.businesslogic;
+
+import org.example.domainmodel.SensorType;
 
 import java.util.ArrayList;
 
@@ -12,5 +14,5 @@ public abstract class Observable {
         observers.remove(o);
     }
 
-    public abstract void notifyObservers();
+    public abstract void notifyObservers(int lastMeasurementId, SensorType sensorType);
 }

@@ -33,7 +33,7 @@ public class SensorMonitor implements Observer {
         ArrayList<Notification> notifications = new ArrayList<>();
         for (AlertRule a : ars) {
             String message = "Attenzione: Violata regola su sensore di tipo " + sensorType.toString() + "/n/tValore registrato: " + measurement.getValue() + "/n/tLower bound: " + a.getLowerBound() + "/tUpper bound: " + a.getUpperBound();
-            notifications.add(new Notification(0, message, LocalDateTime.now(), false, a.getUserId())); //FIXME: id=0 perché sarà l'inserimento nel database (tramite NotificationDAO) a impostarlo
+            notifications.add(new Notification(0, message, LocalDateTime.now(), false, a.getUserId())); //id fittizio
         }
         return notifications;
     }

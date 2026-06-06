@@ -55,10 +55,10 @@ public class UserController {
         }
     }
 
-    public ArrayList<Notification> viewUnreadNotifications(int userId){
+    public ArrayList<Notification> viewUnreadNotifications(int userId) {
         try (NotificationDAO notificationDAO = new NotificationDAO()){
             ArrayList<Notification> unreadNotifications = notificationDAO.viewUnreadNotification(userId);
-            for (Notification it : unreadNotifications)//fixme capire se fare così o in altro modo
+            for (Notification it : unreadNotifications)
                 notificationDAO.setRead(it.getId());
 
             return unreadNotifications;

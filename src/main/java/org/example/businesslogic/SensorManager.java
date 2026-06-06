@@ -3,6 +3,7 @@ package org.example.businesslogic;
 import org.example.domainmodel.Measurement;
 import org.example.domainmodel.Sensor;
 import org.example.domainmodel.SensorState;
+import org.example.domainmodel.SensorType;
 import org.example.orm.MeasurementDAO;
 import org.example.orm.SensorDAO;
 import java.sql.SQLException;
@@ -10,19 +11,21 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-//FIXME: Cambiare implementazione Observer, mettendo SensorManager come Observable? (guardare chat discord)
-public class SensorManager extends Thread {
-    //TODO: sincronizza con semaforo così che solo un thread alla volta può accedere al database
-    //private SharedListActiveSensors sharedListActiveSensors = new SharedListActiveSensors();
+public class SensorManager extends Observable implements Runnable {
+
+    @Override
+    public void notifyObservers(int lastMeasurementId, SensorType sensorType) {
+        for (Observer o : observers) {
+            o.update(lastMeasurementId, sensorType);
+        }
+    }
 
     @Override
     public void run() {
-        while (!isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 DatabaseMutex.mutex.acquire();
                 try (SensorDAO sensorDAO = new SensorDAO(); MeasurementDAO measurementDAO = new MeasurementDAO()){
-                    //FIXME: Usare direttamente i DAO
-                    //ArrayList<Sensor> activeSensors = sharedListActiveSensors.getActualActiveSensors();
 
                     ArrayList<Sensor> activeSensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);
 
@@ -30,7 +33,7 @@ public class SensorManager extends Thread {
                         float newMeasure = s.measure();
                         int lastMeasurementId = measurementDAO.addMeasurement(createMeasurement(newMeasure, s.getId()));
                         sensorDAO.updateLastMeasurement(s.getId(), lastMeasurementId);
-                        s.notifyObservers();
+                        notifyObservers(lastMeasurementId, s.getSensorType());
                     }
                 } catch (SQLException e) {
                     System.err.println("Errore durante la registrazione di nuove misure - Errore del sensor manager");
@@ -38,15 +41,15 @@ public class SensorManager extends Thread {
                 } finally {
                     DatabaseMutex.mutex.release();
                 }
-                sleep(Duration.ofMinutes(3));
+                Thread.sleep(Duration.ofMinutes(3));
             } catch (InterruptedException e) {
                 System.err.println("SensorManager interrupted: " + e.getMessage());
-                interrupt();
+                Thread.currentThread().interrupt();
             }
         }
     }
 
     private Measurement createMeasurement(float value, int sensorId) {
-        return new Measurement(0, sensorId, value, LocalDateTime.now()); //FIXME: id fittizio, poi lo impostare il DBMS tramite MeasurementDAO
+        return new Measurement(0, sensorId, value, LocalDateTime.now()); //id fittizio
     }
 }

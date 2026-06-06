@@ -52,7 +52,6 @@ public class AlertRuleDAO implements AutoCloseable{
         }
     }
 
-    //fixme funzione alternativa
     public ArrayList<AlertRule> getAlertRules(Map<String, Object> param) {
         StringBuilder query = new StringBuilder("SELECT * FROM \"AlertRule\"");
 

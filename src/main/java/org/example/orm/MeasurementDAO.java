@@ -94,7 +94,7 @@ public class MeasurementDAO implements AutoCloseable{
         return measurements;
     }
 
-    public int addMeasurement(Measurement measurement) throws SQLException { //FIXME: capire se usare valore di ritorno boolean oppure lancio eccezione
+    public int addMeasurement(Measurement measurement) throws SQLException {
         int generatedId;
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO \"Measurement\" (value, dateTime, sensorId) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
             statement.setFloat(1, measurement.getValue());
@@ -118,6 +118,4 @@ public class MeasurementDAO implements AutoCloseable{
             throw e;
         }
     }
-
-
 }
