@@ -58,7 +58,6 @@ public class AdminDatabaseController {
             adminDAO.generateDefaultInstances(sql);
         }  catch (SQLException e) {
             System.err.println("Error in defaultInstances: " + e.getMessage());
-            e.getStackTrace();
         }
     }
 }

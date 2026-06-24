@@ -59,6 +59,7 @@ public class MeasurementDAO implements AutoCloseable{
     }
 
     public ArrayList<Measurement> getMeasurements(LocalDateTime startDate, LocalDateTime endDate, Map<String, Object> param) {
+
         StringBuilder query = new StringBuilder("SELECT * FROM \"Measurement\"");
         query.append(" WHERE dateTime >= ? AND dateTime <= ?");
         if (param != null && !param.isEmpty()) {
