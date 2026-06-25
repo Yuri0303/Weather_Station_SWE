@@ -41,8 +41,10 @@ class UserControllerTest {
             ArrayList<Measurement> measurements = new ArrayList<>();
             int idM = 1;
             for (Sensor s : sensors){
-                measurementDAO.addMeasurement(new Measurement(idM, s.getId(), s.measure(), LocalDateTime.now()));
-                measurements.add(new Measurement(idM, s.getId(), s.measure(), LocalDateTime.now()));
+                Measurement m = new Measurement(idM, s.getId(), s.measure(), LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS));
+                int idLastMeasurement = measurementDAO.addMeasurement(m);
+                sensorDAO.updateLastMeasurement(s.getId(), idLastMeasurement);
+                measurements.add(m);
             }
 
             ArrayList<Measurement> results = userController.readData();
@@ -51,8 +53,10 @@ class UserControllerTest {
             //verifichiamo che prenda effettivamente le ultime misure effettuate
             measurements.clear();
             for (Sensor s : sensors){
-                measurementDAO.addMeasurement(new Measurement(idM, s.getId(), s.measure(), LocalDateTime.now()));
-                measurements.add(new Measurement(idM, s.getId(), s.measure(), LocalDateTime.now()));
+                Measurement m = new Measurement(idM, s.getId(), s.measure(), LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS));
+                int idLastMeasurement = measurementDAO.addMeasurement(m);
+                sensorDAO.updateLastMeasurement(s.getId(), idLastMeasurement);
+                measurements.add(m);
             }
 
             results = userController.readData();
@@ -65,7 +69,7 @@ class UserControllerTest {
     }
 
     @Test
-    void readDataHistory() {//è praticamnete uguale a quello di adminController
+    void readDataHistory() {
         LocalDateTime startDate = LocalDateTime.of(2026, 1, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2026, 1, 4, 0, 0);
 

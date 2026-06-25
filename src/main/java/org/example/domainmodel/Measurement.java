@@ -50,9 +50,6 @@ public class Measurement {
 
     @Override
     public String toString() {
-        return "Measurement{" +
-                "value=" + value +
-                ", dateTime=" + dateTime +
-                '}';
+        return String.format("%d)\t %-15.3f %s", sensorId, value, dateTime.toString());
     }
 }

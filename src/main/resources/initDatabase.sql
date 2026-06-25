@@ -28,15 +28,15 @@ INSERT INTO "AlertRule" (sensorType, lowerBound, upperBound, userId)
 
 INSERT INTO "Sensor" (sensorType, sensorState, lastMeasurementId)
     VALUES
-        ('TEMPERATURE', 'active', null),--id=1
-        ('TEMPERATURE', 'active', null),
-        ('HUMIDITY', 'active', null),
-        ('HUMIDITY', 'active', null),
-        ('PRESSURE', 'active', null),
-        ('PRESSURE', 'active', null),
-        ('WIND', 'active', null),
-        ('WIND', 'active', null),
-        ('TEMPERATURE', 'deactivated', null),
-        ('HUMIDITY', 'deactivated', null),
-        ('PRESSURE', 'deactivated', null),
-        ('WIND', 'deactivated', null);--id=12 ATTENZIONE: nel testing questo valore conta
+        ('TEMPERATURE', 'ACTIVE', null),--id=1
+        ('TEMPERATURE', 'ACTIVE', null),
+        ('HUMIDITY', 'ACTIVE', null),
+        ('HUMIDITY', 'ACTIVE', null),
+        ('PRESSURE', 'ACTIVE', null),
+        ('PRESSURE', 'ACTIVE', null),
+        ('WIND', 'ACTIVE', null),
+        ('WIND', 'ACTIVE', null),
+        ('TEMPERATURE', 'DEACTIVATED', null),
+        ('HUMIDITY', 'DEACTIVATED', null),
+        ('PRESSURE', 'DEACTIVATED', null),
+        ('WIND', 'DEACTIVATED', null);--id=12 ATTENZIONE: nel testing questo valore conta

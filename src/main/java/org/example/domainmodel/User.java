@@ -1,7 +1,5 @@
 package org.example.domainmodel;
 
-import java.util.ArrayList;
-
 public class User extends SystemUser {
 
     private boolean isBlocked;
@@ -13,5 +11,10 @@ public class User extends SystemUser {
 
     public boolean isBlocked() {
         return isBlocked;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%d)\t %-30s %-30s %-50s %s", id, firstName, lastName, email, isBlocked ? "Sì" : "No");
     }
 }

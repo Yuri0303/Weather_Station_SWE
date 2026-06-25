@@ -23,7 +23,7 @@ public class AdminController {
 
     public ArrayList<User> viewUsers() {
         try (UserDAO userDAO = new UserDAO()) {
-            return userDAO.getUsers(Map.of("isBlocked", false));
+            return userDAO.getUsers(null);
         }catch (SQLException e){
             System.err.println("Errore durante la lettura degli utenti" + e.getMessage());
             return null;
@@ -36,7 +36,7 @@ public class AdminController {
             if(success)
                System.out.println("Utente bloccato correttamente");
             else
-                throw new SQLException("success= "+success);
+                throw new SQLException("Verificare che l'utente esista e non sia già bloccato");
         }catch (SQLException e){
             System.err.println("Errore durante il bloccaggio di un utente: " + e.getMessage());
         }

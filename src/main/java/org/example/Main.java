@@ -1,10 +1,9 @@
 package org.example;
 
-import org.example.businesslogic.AdminController;
-import org.example.businesslogic.AdminDatabaseController;
-import org.example.businesslogic.StaffLoginController;
+import org.example.businesslogic.*;
 import org.example.domainmodel.Measurement;
 import org.example.domainmodel.SystemUser;
+import org.example.domainmodel.User;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -98,7 +97,7 @@ public class Main {
             int index = chooseMenuOption("  WEATHER STATION", new String[]{"Utente", "Personale", "Esci"});
             switch (index) {
                 case 1:
-                    handleUserLogin();
+                    handleUser();
                     break;
                 case 2:
                     handleStaff();
@@ -126,6 +125,7 @@ public class Main {
     }
 
     public static void handleStaffLogin(String role) throws Exception {
+        loggedUser = null;
         int index = chooseMenuOption("  LOGIN" + role, new String[]{"Accedi", "Indietro", "Esci"});
         switch (index) {
             case 1:
@@ -162,16 +162,19 @@ public class Main {
             int index = chooseMenuOption("  DASHBOARD ADMIN", new String[]{"Lettura storico misurazioni", "Visualizza utenti", "Logout"});
             switch (index) {
                 case 1:
-                    handleViewMeasurementsHistory();
+                    handleAdminViewMeasurementsHistory();
+                    break;
                 case 2:
                     handleViewUsers();
+                    break;
                 case 3:
+                    loggedUser = null;
                     return;
             }
         }
     }
 
-    public static void handleViewMeasurementsHistory() {
+    public static void handleAdminViewMeasurementsHistory() {
         String input;
         LocalDateTime startDate;
         LocalDateTime endDate;
@@ -215,14 +218,153 @@ public class Main {
     }
 
     public static void handleViewUsers() {
-
+        AdminController adminController = new AdminController();
+        ArrayList<User> users = adminController.viewUsers();
+        System.out.printf("%-4s %-30s %-30s %-50s %s%n", "ID", "Nome", "Cognome", "Email", "Bloccato");
+        for (User u : users) {
+            System.out.println(u.toString());
+        }
+        if (!users.isEmpty() && chooseYesOrNo("Vuoi bloccare un utente?")) {
+            int userId = askForInteger("Inserire ID utente: ");
+            adminController.blockUser(userId);
+        }
     }
 
     public static void handleMaintainerAction() {
 
     }
 
+    public static void handleUser() {
+        int index = chooseMenuOption("  AUTENTICAZIONE / REGISTRAZIONE UTENTE", new String[]{"Registrati", "Accedi", "Indietro", "Esci"});
+        switch (index) {
+            case 1:
+                handleUserRegistration();
+                break;
+            case 2:
+                handleUserLogin();
+                break;
+            case 3:
+                return;
+            case 4:
+                System.exit(0);
+        }
+    }
+
+    public static void handleUserRegistration() {
+        boolean success = false;
+        while (!success) {
+            System.out.println("Nome: ");
+            String firstname = scanner.nextLine();
+            System.out.println("Cognome: ");
+            String lastname = scanner.nextLine();
+            System.out.println("Email: ");
+            String email = scanner.nextLine();
+            System.out.println("Password: ");
+            String password = scanner.nextLine();
+
+            UserLoginController userLoginController = new UserLoginController();
+            success = userLoginController.register(firstname, lastname, email, password);
+            if (!success) {
+                if(!chooseYesOrNo("Registrazione fallita. Vuoi ritentare?"))
+                    break;
+            }
+        }
+        handleUser();
+    }
+
     public static void handleUserLogin() {
+        loggedUser = null;
+        System.out.print("\nEmail: ");
+        String email = scanner.nextLine();
+        System.out.print("\nPassword: ");
+        String password = scanner.nextLine();
+        UserLoginController userLoginController = new UserLoginController();
+        loggedUser = userLoginController.login(email, password);
+        if(loggedUser != null)
+            handleUserAction();
+        else
+            System.out.println("Email o password errati");
+    }
+
+    public static void handleUserAction() {
+        while (true) {
+            int index = chooseMenuOption("  DASHBOARD UTENTE", new String[]{"Lettura dati", "Imposta Alert Rule", "Visualizza notifiche non lette", "Logout"});
+            switch (index) {
+                case 1:
+                    handleUserViewMeasurement();
+                    break;
+                case 2:
+                    handleSetAlertRule();
+                    break;
+                case 3:
+                    handleViewUnreadNotifications();
+                    break;
+                case 4:
+                    loggedUser = null;
+                    return;
+            }
+        }
+    }
+
+    public static void handleUserViewMeasurement() {
+        try {
+            DatabaseMutex.mutex.acquire();
+            UserController userController = new UserController();
+            ArrayList<Measurement> measurements = userController.readData();
+            System.out.printf("%-15s %-15s %s%n", "ID Sensore", "Valore", "Data");
+            for (Measurement m : measurements) {
+                System.out.println(m);
+            }
+            if (chooseYesOrNo("Vuoi vedere lo storico?")) {
+                String input;
+                LocalDateTime startDate;
+                LocalDateTime endDate;
+                while (true) {
+                    while (true) {
+                        System.out.print("Inserire data di inizio (dd-mm-yyyy):  ");
+                        input = scanner.nextLine();
+                        try {
+                            startDate = LocalDate.parse(input, DateTimeFormatter.ofPattern("dd-MM-uuuu")).atStartOfDay();
+                            break;
+                        } catch (DateTimeParseException e) {
+                            System.out.println("Input invalido, si prega di riprovare");
+                        }
+                    }
+
+                    while (true) {
+                        System.out.print("Inserire data di fine (dd-mm-yyyy):  ");
+                        input = scanner.nextLine();
+                        try {
+                            endDate = LocalDate.parse(input, DateTimeFormatter.ofPattern("dd-MM-uuuu")).atStartOfDay();
+                            break;
+                        } catch (DateTimeParseException e) {
+                            System.out.println("Input invalido, si prega di riprovare");
+                        }
+                    }
+                    if (startDate.isAfter(endDate)) {
+                        System.out.println("Date con ordine invertito, si prega di reinserire le date.");
+                    } else {
+                        break;
+                    }
+                }
+                measurements = userController.readDataHistory(startDate, endDate);
+                System.out.printf("%-15s %-15s %s%n", "ID Sensore", "Valore", "Data");
+                for (Measurement m : measurements) {
+                    System.out.println(m);
+                }
+            }
+            DatabaseMutex.mutex.release();
+        } catch (InterruptedException e) {
+             System.err.println("Main interrotto");
+        }
+
+    }
+
+    public static void handleSetAlertRule() {
+
+    }
+
+    public static void handleViewUnreadNotifications() {
 
     }
 }

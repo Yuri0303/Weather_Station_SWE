@@ -72,14 +72,18 @@ class AdminControllerTest {
     @Test
     void viewUsers() {
         //creare oggetti user non bloccati nel database iniziale
-        User u1 = new User(2, "Roberto", "Chiesi", "robertochiesi@test.it", false);
-        User u2 = new User(3, "Gianluca", "Taddei", "gianlucataddei@test.it", false);
-        User u3 = new User(4, "Riccardo", "Cappellini", "riccardocappellini@test.it", false);
+        User u1 = new User(1, "Samuele", "Zanieri", "samuelezanieri@test.it", true);
+        User u2 = new User(2, "Roberto", "Chiesi", "robertochiesi@test.it", false);
+        User u3 = new User(3, "Gianluca", "Taddei", "gianlucataddei@test.it", false);
+        User u4 = new User(4, "Riccardo", "Cappellini", "riccardocappellini@test.it", false);
+        User u5 = new User(5, "Sasha", "Bartoletti", "sashabartoletti@test.it", true);
 
         ArrayList<User> expectedUsers = new ArrayList<>();
         expectedUsers.add(u1);
         expectedUsers.add(u2);
         expectedUsers.add(u3);
+        expectedUsers.add(u4);
+        expectedUsers.add(u5);
 
         ArrayList<User> actualUsers = adminController.viewUsers();
 

@@ -14,17 +14,20 @@ import java.util.Map;
 
 public class UserController {
     public ArrayList<Measurement> readData(){
-        try (SensorDAO sensorDAO = new SensorDAO(); MeasurementDAO measurementDAO = new MeasurementDAO()){
+        try (SensorDAO sensorDAO = new SensorDAO(); MeasurementDAO measurementDAO = new MeasurementDAO()) {
             ArrayList<Sensor> sensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);
             Map<String, Object> map = new HashMap<>();
+            ArrayList<Measurement> lastMeasurements = new ArrayList<>();
             for (Sensor it : sensors){
                 Integer lastMeasurementId = it.getLastMeasurementId();
-                if(lastMeasurementId != null)
-                    map.put("id", lastMeasurementId);//mappa che contiene tutti gli id delle ultime misurazioni di tutti i sensori attivi. Potrebbero essere nulle
+                if (lastMeasurementId != null) {
+                    map.put("id", lastMeasurementId);//Mappa che contiene tutti gli id delle ultime misurazioni di tutti i sensori attivi. Potrebbero essere nulle
+                    lastMeasurements.add(measurementDAO.getMeasurements(map).getFirst());
+                    map.clear();
+                }
             }
-
-            return measurementDAO.getMeasurements(map);
-        }catch (SQLException e){
+            return lastMeasurements;
+        } catch (SQLException e) {
             System.err.println("Errore durante la lettura delle attuali misurazioni da parte dell'utente " + e.getMessage());
             return null;
         }
@@ -34,15 +37,16 @@ public class UserController {
         try (SensorDAO sensorDAO = new SensorDAO(); MeasurementDAO measurementDAO = new MeasurementDAO()){
             ArrayList<Sensor> sensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);
             Map<String, Object> map = new HashMap<>();
-            for (Sensor it : sensors){
-                Integer idLastMeasurement = it.getLastMeasurementId();
-                if(idLastMeasurement != null)
-                    map.put("id", idLastMeasurement);//mappa che contiene tutti gli id delle ultime misurazioni di tutti i sensori attivi. Potrebbero essere nulle
+            ArrayList<Measurement> measurements = new ArrayList<>();
+            for (Sensor it : sensors) {
+                map.put("sensorId", it.getId());
+                measurements.addAll(measurementDAO.getMeasurements(startDate, endDate, map));
+                map.clear();
             }
 
-            return measurementDAO.getMeasurements(startDate, endDate, map);
-        }catch (SQLException e){
-            System.err.println("Errore durante la lettura delle attauli misurazioni da parte dell'utente " + e.getMessage());
+            return measurements;
+        } catch (SQLException e) {
+            System.err.println("Errore durante la lettura delle attuali misurazioni da parte dell'utente " + e.getMessage());
             return null;
         }
     }
