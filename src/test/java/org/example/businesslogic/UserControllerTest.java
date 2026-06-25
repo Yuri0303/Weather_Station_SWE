@@ -39,7 +39,7 @@ class UserControllerTest {
         try (SensorDAO sensorDAO = new SensorDAO(); MeasurementDAO measurementDAO = new MeasurementDAO()){
             ArrayList<Sensor> sensors = sensorDAO.getSensorsByState(SensorState.ACTIVE);
             ArrayList<Measurement> measurements = new ArrayList<>();
-            int idM = 1;
+            int idM = 5;
             for (Sensor s : sensors){
                 Measurement m = new Measurement(idM, s.getId(), s.measure(), LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS));
                 int idLastMeasurement = measurementDAO.addMeasurement(m);
@@ -78,10 +78,10 @@ class UserControllerTest {
         LocalDateTime date3 = LocalDateTime.of(2026, 1, 4, 0, 0);
         LocalDateTime date4 = LocalDateTime.of(2026, 1, 5, 0, 0);
 
-        Measurement m1 = new Measurement(0, 1, 10, date1);
-        Measurement m2 = new Measurement(1, 1, 10, date2);
-        Measurement m3 = new Measurement(2, 1, 10, date3);
-        Measurement m4 = new Measurement(3, 1, 10, date4);
+        Measurement m1 = new Measurement(5, 1, 10, date1);
+        Measurement m2 = new Measurement(6, 1, 10, date2);
+        Measurement m3 = new Measurement(7, 1, 10, date3);
+        Measurement m4 = new Measurement(8, 1, 10, date4);
 
         try (MeasurementDAO measurementDAO = new MeasurementDAO()){
             measurementDAO.addMeasurement(m1);
@@ -140,8 +140,8 @@ class UserControllerTest {
             notificationDAO.registerNotification(new Notification(0, "testo1", d1, false, 1));
             notificationDAO.registerNotification(new Notification(0, "testo2", d2, false, 1));
             ArrayList<Notification> comparing = new ArrayList<>();
-            comparing.add(new Notification(1, "testo1", d1, false, 1));
-            comparing.add(new Notification(2, "testo2", d2, false, 1));
+            comparing.add(new Notification(3, "testo1", d1, false, 1));
+            comparing.add(new Notification(4, "testo2", d2, false, 1));
 
             ArrayList<Notification> notifications = userController.viewUnreadNotifications(1);
 
@@ -167,9 +167,9 @@ class UserControllerTest {
             notificationDAO.registerNotification(new Notification(0, "testo4", d4, false, 1));
 
             ArrayList<Notification> comparing = new ArrayList<>();
-            comparing.add(new Notification(1, "testo1", d1, false, 1));
-            comparing.add(new Notification(2, "testo2", d2, false, 1));
-            comparing.add(new Notification(3, "testo3", d3, false, 1));
+            comparing.add(new Notification(3, "testo1", d1, false, 1));
+            comparing.add(new Notification(4, "testo2", d2, false, 1));
+            comparing.add(new Notification(5, "testo3", d3, false, 1));
 
             ArrayList<Notification> results = userController.viewNotificationHistory(1, 3);
 

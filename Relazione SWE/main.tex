@@ -136,7 +136,6 @@
 	\newpage
 	\subsection{Use Case Template}
 %=========================================================================================================================================
-%\input{UsecaseTemplate}
 
 
 	\begin{table}[h]
@@ -191,7 +190,7 @@
 			\textbf{Pre-Conditions} & L'utente deve essere nella pagina di registrazione \\ %(mockup)
 			\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
 									  \item L'utente  fornisce le informazioni richieste
-									  \item l'utente conferma la registrazione
+									  \item L'utente conferma la registrazione
 									  \item Il sistema verifica i dati (email ha vincolo unique)
 									  \item Il sistema crea un nuovo account per il cliente
 									  \item[]
@@ -228,8 +227,8 @@
 									  \item Il sistema registra il ticket sul sensore segnalato
 									  \item[]
 			\end{enumerate} \\
-			% \textbf{Alternative Flow} & \\
-			\textbf{Post-Conditions} & Il ticket è stato registrato. Il sistema blocca il sensore segnalato e riporta l'Admin sulla pagina di "Lettura storico", così, se necessario, può aprire subito un altro ticket \\
+			\textbf{Alternative Flow} & 3.a) Sul sensore segnalato è già stato aperto un ticket, quindi il sistema restiturà un messagio di errore e non sarà aperto un ulteriore ticket. \\
+			\textbf{Post-Conditions} & Il ticket è stato registrato. Il sistema blocca il sensore segnalato e riporta l'Admin sulla sua dashboard, indipendentemente che l'apertura del ticket sia andata a buon fine o no. \\
 
 			\hline
 		\end{tabular}
@@ -282,15 +281,15 @@
 			\textbf{Brief Description} & Il manutentore prende un ticket aperto\\
 			\textbf{Level} & User Goal \\
 			\textbf{Actors} & Maintainer \\
-			\textbf{Pre-Conditions} & Il manutentore deve essere autenticato e nella pagina "Visualizza ticket aperti". Inoltre, non deve avere già preso un ticket \\
+			\textbf{Pre-Conditions} & Il manutentore deve essere autenticato e nella pagina "Visualizza ticket aperti".\\
 			\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
 									  \item Il manutentore seleziona l'opzione "Prendi ticket"
 									  \item Il manutentore seleziona il ticket che vuole prendere
 									  \item Il sistema registra il ticket come preso
 									  \item[]
 			\end{enumerate} \\
-			\textbf{Alternative Flow} & 3.a) Il sistema segnala un errore perché il ticket selezionato è già stato acquisito da un altro manutentore qualche istante prima\\
-			\textbf{Post-Conditions} & Il sistema imposta il ticket come "preso" \\
+			\textbf{Alternative Flow} & 3.a) Il sistema segnala un errore perché il ticket selezionato è già stato acquisito da un altro manutentore qualche istante prima.\\
+			\textbf{Post-Conditions} & Il sistema imposta nel database il ticket come "preso" e gli assegna l'id del manutentore che l'ha selezionato. \\
 
 			\hline
 		\end{tabular}
@@ -348,25 +347,26 @@
 			\hline
 
 			\rowcolor{gray!25}
-			\textbf{Use Case \#7} & \textbf{Lettura dello storico dei dati (User)} \\
-			\textbf{Brief Description} & L'utente legge le misurazioni dei sensori effettuate fino a una certa quantità di giorni precedenti alla data odierna \\
+			\textbf{Use Case \#7} & \textbf{Lettura dello storico delle misurazioni (User)} \\
+			\textbf{Brief Description} & L'utente legge le misurazioni effettuate dai sensori inserendo una data di inizio e una data di fine \\
 			\textbf{Level} & User Goal \\
 			\textbf{Actors} & User \\
 			\textbf{Pre-Conditions} & L'utente è autenticato e sulla pagina di lettura dati \\
 			\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
-									  \item L'utente seleziona l'opzione "Leggi storico"
-									  \item L'utente inserisce il numero di giorni di cui vuole leggere le misurazioni
+									  \item L'utente seleziona l'opzione "Leggi storico misurazioni"
+									  \item L'utente inserisce la data di inizio
+									  \item L'utente inserisce la data di fine
 									  \item Il sistema mostra tutte le misurazioni fatte da tutti i sensori in quell'arco di tempo
 									  \item[]
 			\end{enumerate} \\
-			\textbf{Alternative Flow} & 3.a) Il sistema mostra un errore se il numero di giorni inserito non è valido ($\le$0 o troppo grande) \\
+			\textbf{Alternative Flow} & 2/3.a) Il sistema mostra un errore se il formato della data non è valido e permette di reinserire subito tale data\\
 			\textbf{Post-Conditions} & Il sistema deve mostrare tutte e solo le misurazioni fatte in quell'arco di tempo \\
 
 			\hline
 		\end{tabular}
 
 		\vspace{0.2cm}
-		\caption{Use Case \#7 (User: Lettura storico)}
+		\caption{Use Case \#7 (User: Lettura storico misurazioni)}
 	\end{table}
 	\vspace{1cm}
 
@@ -385,13 +385,14 @@
 			\textbf{Actors} & User \\
 			\textbf{Pre-Conditions} & L'utente è autenticato e sulla pagina principale \\
 			\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
-									  \item L'utente seleziona l'opzione "Imposta alert rule personalizzata"
-									  \item L'utente crea la regola impostando il tipo di sensore e i limiti inferiore e superiore. Il sistema verificherà automaticamente questa regola per ogni misurazione, ad opera dei sensori di quel tipo, successiva alla creazione
+									  \item L'utente seleziona l'opzione "Imposta Alert Rule"
+									  \item L'utente seleziona uno dei 3 tipi di Alert Rule: solo limite inferiore, solo limite superiore oppure entrambi
+									  \item L'utente crea la regola impostando il tipo di sensore e il/i limite/i. Il sistema verificherà automaticamente questa regola per ogni misurazione, ad opera dei sensori di quel tipo, successiva alla creazione
 									  \item Il sistema registra la regola nel database
 									  \item[]
 			\end{enumerate} \\
-			\textbf{Alternative Flow} & 3.a) Il sistema mostra un errore perché qualche valore della regola non è valido oppure se la regola esiste già \\
-			\textbf{Post-Conditions} & L'utente rimane sulla pagina per impostare le notifiche personalizzate, qualora volesse impostarn un'altra \\
+			\textbf{Alternative Flow} & 3.a) Il sistema mostra un errore perché qualche valore della regola non è valido e e permette di reinserirlo subito\\
+			\textbf{Post-Conditions} & L'utente viene riportato alla dashboard iniziale \\
 
 			\hline
 		\end{tabular}
@@ -401,6 +402,37 @@
 	\end{table}
 	\vspace{1cm}
 
+
+	\begin{table}[h]
+		\centering
+		\setlength{\arrayrulewidth}{0.8pt} % Raddoppia lo spessore delle linee
+		\rowcolors{2}{white}{blue!10}
+
+		\begin{tabular}{|l p{12cm}|}
+			\hline
+
+			\rowcolor{gray!25}
+			\textbf{Use Case \#9} & \textbf{Lettura dello storico delle notifiche (User)} \\
+			\textbf{Brief Description} & L'utente legge tutte le notifiche risalenti ad un certo numero di giorni fa \\
+			\textbf{Level} & User Goal \\
+			\textbf{Actors} & User \\
+			\textbf{Pre-Conditions} & L'utente è autenticato e sulla pagina "Visualizza notifiche non lette" \\
+			\textbf{Basic Flow} & \begin{enumerate}[label=\arabic*), leftmargin=*, before=\vspace{-0.7cm}, after=\vspace{-0.4cm}]
+									  \item L'utente seleziona l'opzione "Leggi storico notifiche"
+									  \item L'utente inserisce il numero di giorni antecedenti la data odierna dei quali vuole vedere le notifiche
+									  \item Il sistema mostra tutte le notifiche appartenenti a quell'arco di tempo
+									  \item[]
+			\end{enumerate} \\
+			\textbf{Alternative Flow} & 2.a) Il sistema mostra un errore se l'input non è valido e permette di reinserire subito il valore\\
+			\textbf{Post-Conditions} & Il sistema deve mostrare tutte e solo le notifiche appartenenti a quell'arco di tempo \\
+
+			\hline
+		\end{tabular}
+
+		\vspace{0.2cm}
+		\caption{Use Case \#9 (User: Lettura storico notifiche)}
+	\end{table}
+	\vspace{1cm}
 %==========================================================================================================================================================
 	\clearpage
 	\subsection{Class Diagram}

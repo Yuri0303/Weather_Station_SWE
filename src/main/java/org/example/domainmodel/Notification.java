@@ -18,13 +18,7 @@ public class Notification {
     }
     @Override
     public String toString() {
-        return "Notification{" +
-                "id=" + id +
-                ", message='" + message + '\'' +
-                ", dateTime=" + dateTime +
-                ", isRead=" + isRead +
-                ", idUser=" + userId +
-                '}';
+        return String.format("%-15d %-300s %-30s", id, message, dateTime.toString());
     }
 
     public LocalDateTime getDateTime() {

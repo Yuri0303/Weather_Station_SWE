@@ -1,8 +1,10 @@
 package org.example.businesslogic;
 
 import org.example.domainmodel.Measurement;
+import org.example.domainmodel.SensorState;
 import org.example.domainmodel.User;
 import org.example.orm.MeasurementDAO;
+import org.example.orm.SensorDAO;
 import org.example.orm.TicketDAO;
 import org.example.orm.UserDAO;
 
@@ -43,8 +45,9 @@ public class AdminController {
     }
 
     public void openTicket(int sensorId) throws SQLException {
-        try (TicketDAO ticketDAO = new TicketDAO()){
+        try (TicketDAO ticketDAO = new TicketDAO(); SensorDAO sensorDAO = new SensorDAO()){
             ticketDAO.addTicket(sensorId);
+            sensorDAO.changeSensorState(sensorId, SensorState.FAULTY);
         } catch (SQLException e) {
             System.err.println("Error during ticket opening: " + e.getMessage());
             throw e;

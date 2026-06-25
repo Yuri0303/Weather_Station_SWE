@@ -13,6 +13,10 @@ import java.util.ArrayList;
 
 public class SensorManager extends Observable implements Runnable {
 
+    public SensorManager(){
+        this.observers = new ArrayList<>();
+    }
+
     @Override
     public void notifyObservers(int lastMeasurementId, SensorType sensorType) {
         for (Observer o : observers) {

@@ -40,3 +40,15 @@ INSERT INTO "Sensor" (sensorType, sensorState, lastMeasurementId)
         ('HUMIDITY', 'DEACTIVATED', null),
         ('PRESSURE', 'DEACTIVATED', null),
         ('WIND', 'DEACTIVATED', null);--id=12 ATTENZIONE: nel testing questo valore conta
+
+INSERT INTO "Notification" (message, isRead, userId, datetime)
+    VALUES
+        ('messaggio di prova 1', true, 2, '2026-06-01 00:00:00'),
+        ('messaggio di prova 2', true, 2, '2026-06-01 00:00:03');
+
+INSERT INTO "Measurement" (value, datetime, sensorId)
+    VALUES
+        (33, '2026-06-01 00:00:00', 1),
+        (81, '2026-06-01 00:00:00', 3),
+        (1050, '2026-06-01 00:00:00', 5),
+        (35, '2026-06-01 00:00:00', 7);

@@ -33,13 +33,6 @@ public class Ticket {
 
     @Override
     public String toString() {
-        return "Ticket{" +
-                "closeDateTime=" + closeDateTime +
-                ", id=" + id +
-                ", sensorId=" + sensorId +
-                ", maintainerId=" + maintainerId +
-                ", isOpen=" + isOpen +
-                ", isTaken=" + isTaken +
-                '}';
+        return String.format("%-15d %-4d %-10s", id, sensorId, isTaken);
     }
 }

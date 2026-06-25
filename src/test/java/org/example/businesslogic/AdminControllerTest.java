@@ -45,10 +45,10 @@ class AdminControllerTest {
         LocalDateTime date3 = LocalDateTime.of(2026, 1, 4, 0, 0);
         LocalDateTime date4 = LocalDateTime.of(2026, 1, 5, 0, 0);
 
-        Measurement m1 = new Measurement(0, 1, 10, date1);
-        Measurement m2 = new Measurement(1, 1, 10, date2);
-        Measurement m3 = new Measurement(2, 1, 10, date3);
-        Measurement m4 = new Measurement(3, 1, 10, date4);
+        Measurement m1 = new Measurement(5, 1, 10, date1);
+        Measurement m2 = new Measurement(6, 1, 10, date2);
+        Measurement m3 = new Measurement(7, 1, 10, date3);
+        Measurement m4 = new Measurement(8, 1, 10, date4);
 
         try (MeasurementDAO measurementDAO = new MeasurementDAO()){
             measurementDAO.addMeasurement(m1);

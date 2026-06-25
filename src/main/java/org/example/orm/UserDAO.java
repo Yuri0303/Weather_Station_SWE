@@ -77,16 +77,19 @@ public class UserDAO implements AutoCloseable {
         return registered;
     }
 
-    public User login(String email, String password){
+    public User login(String email, String password) throws RuntimeException{
         User user = null;
-        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM \"User\" WHERE email = ? AND password = ? AND isblocked = FALSE")) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM \"User\" WHERE email = ? AND password = ?")) {
             statement.setString(1, email);
             statement.setString(2, password);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
+                    if(resultSet.getBoolean("isBlocked")) throw new RuntimeException("Utente bloccato, impossibile accedere!");
                     user = new User(resultSet.getInt("id"), resultSet.getString("firstName"), resultSet.getString("lastName"),
                             resultSet.getString("email"), resultSet.getBoolean("isBlocked"));
+                }else{
+                    throw new RuntimeException("Email o password errati");
                 }
             }
         } catch (SQLException e) {

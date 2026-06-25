@@ -15,6 +15,6 @@ public class User extends SystemUser {
 
     @Override
     public String toString() {
-        return String.format("%d)\t %-30s %-30s %-50s %s", id, firstName, lastName, email, isBlocked ? "Sì" : "No");
+        return String.format("%-4d %-30s %-30s %-50s %s", id, firstName, lastName, email, isBlocked ? "Sì" : "No");
     }
 }

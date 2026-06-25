@@ -32,7 +32,7 @@ public class SensorMonitor implements Observer {
     private ArrayList<Notification> createNotifications(ArrayList<AlertRule> ars, Measurement measurement, SensorType sensorType) {
         ArrayList<Notification> notifications = new ArrayList<>();
         for (AlertRule a : ars) {
-            String message = "Attenzione: Violata regola su sensore di tipo " + sensorType.toString() + "/n/tValore registrato: " + measurement.getValue() + "/n/tLower bound: " + a.getLowerBound() + "/tUpper bound: " + a.getUpperBound();
+                String message = "Attenzione: Violata regola su sensore di tipo " + sensorType.toString() + "\t\tValore registrato: " + measurement.getValue() + "\t\tLower bound: " + a.getLowerBound() + "\tUpper bound: " + a.getUpperBound();
             notifications.add(new Notification(0, message, LocalDateTime.now(), false, a.getUserId())); //id fittizio
         }
         return notifications;

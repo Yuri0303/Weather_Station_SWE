@@ -44,6 +44,8 @@ public class SystemMonitor extends Thread {
             ArrayList<Sensor> sensors = sensorDAO.getSensors(Map.of("id", sensorId));
             Sensor sensor = sensors.getFirst();
             ArrayList<Measurement> measurements = measurementDAO.getMeasurements(Map.of("id", sensor.getLastMeasurementId()));
+            if(measurements.isEmpty())
+                return true;//se non c'è alcuna misura è come se fosse tutto ok
             Measurement measurement = measurements.getFirst();
             if (sensor instanceof TemperatureSensor) {
                 float lowerBound = 0F;
@@ -78,8 +80,9 @@ public class SystemMonitor extends Thread {
     }
 
     private void openTicket(int sensorId){
-        try (TicketDAO ticketDAO = new TicketDAO()) {
+        try (TicketDAO ticketDAO = new TicketDAO(); SensorDAO sensorDAO = new SensorDAO()) {
             ticketDAO.addTicket(sensorId);
+            sensorDAO.changeSensorState(sensorId, SensorState.FAULTY);
         } catch (SQLException e) {
             System.err.println("Errore durante l'apertura di un ticket per il sensore " + sensorId);
         }
