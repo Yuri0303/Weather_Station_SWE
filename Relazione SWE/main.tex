@@ -446,7 +446,7 @@
 	\end{figure}
 
 	\subsubsection{Business Logic}
-	Si tratta di un insieme di controller che permettono agli attori di erogare uno dei servizi loro concessi. Il \texttt{SensorManager} e il \texttt{SensorMonitor} implementano il design pattern observer. È anche presente una classe \texttt{AdminExtraController} utile per alcune funzioni di gestione del db (usate soprattutto nel testing).
+	Si tratta di un insieme di controller che permettono agli attori di usufruire dei servizi a loro concessi. Il \texttt{SensorManager} e il \texttt{SensorMonitor} implementano il  \textbf{Design Pattern Observer}. È anche presente una classe \texttt{AdminExtraController} utile per alcune funzioni di gestione del db (usate soprattutto nel testing). È anche presente un classe \texttt{DatabaseMutex} che contiene un Semaphore utile per la sincronizzazione dei thread Main, SystemMonitor e SensorManager.
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.95\textwidth]{Images/business_logic}
@@ -455,7 +455,7 @@
 	\end{figure}
 
 	\subsubsection{ORM}
-	Contiene un oggetto nameClassDAO per ogni classe del domain model presente nel db di sistema. \texttt{ConnectionManager} è la classe che si occupa di erogare e chiudere la connessione al db.
+	Contiene un oggetto nameClassDAO per ogni classe del domain model presente nel db di sistema. \texttt{DatabaseManager} è la classe che si occupa di erogare e chiudere la connessione al database.
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.95\textwidth]{Images/ORM}
@@ -489,35 +489,29 @@ CREATE TABLE IF NOT EXISTS "AlertRule"
 );
 	\end{lstlisting}
 	\newline
-	Inoltre, a causa della \textbf{relazione circolare} che c'è tra le tabelle Sensor e Measurement, si è reso necessario aggiungere questo controllo:
+	Inoltre, a causa della \textbf{relazione circolare} che c'è tra le tabelle Sensor e Measurement, si è reso necessario impostare la chiave esterna dopo la creazione di entrambe le tabelle:
 	\begin{lstlisting}[style = stileSQL]
     ALTER TABLE "Measurement"
     ADD CONSTRAINT fk_sensorId
     FOREIGN KEY (sensorId) REFERENCES "Sensor" (id);
 	\end{lstlisting}
-	Infatti, una relazione circolare introduce il problema "È nato prima l'uovo o la gallina?", in questo caso per noi è nata prima la tabella Sensor. L'attributo lastMeasurementId potrà essere inizializzato anche in un secondo momento.
+	Infatti, una relazione circolare introduce il problema "È nato prima l'uovo o la gallina?", in questo caso per noi è nata prima la tabella Sensor: l'attributo lastMeasurementId potrà essere inizializzato anche in un secondo momento.
 	\newline
 	Si è reso infine necessario aggiungere anche il suguente controllo:
 	\begin{lstlisting}[style = stileSQL]
     CREATE UNIQUE INDEX unique_open_ticket_per_sensor
     ON "Ticket (sensorId)
-    WHERE (usOpen = TRUE);
+    WHERE (isOpen = TRUE);
 	\end{lstlisting}
 	Per un sensore guasto infatti non possono e non devono esserci \textbf{più ticket aperti}.
 
-
-
-
-
-
-	\subsection{Mock-ups} % da implementare
 	\subsection{Navigation Diagram} % da implementare
 	Di seguito è riportato il diagramma di navigazione dell'interfaccia a riga di comando implementata.
 	\begin{itemize}
 		\item \textbf{Weather station}: La home page. Si sceglie se autenticarsi come utenti o come personale.
 		\item \textbf{Dashboard User}: Se si esegue il login come utenti si ha accesso alla lettura dei dati, all'impostazione delle alert rule personalizzate e alla lettura delle notifiche non lette. la lettura dello storico dei dati e dello storico notifiche è gestita mediante una richiesta y/n.
-		\item \textbf{Dashboard Admin}: Può visualizzare tutti gli utenti e può leggere lo storico delle misurazioni. Mediante sempre una richiesta y/n sarà chiesto se si desidera bloccare un utente oppure aprire un ticket per un sensore.
-		\item \textbf{Dashboard Maintainer}: Visualizza ticket aperti, quindi con richiesta y/n si decide se prenderne uno o meno. Può anche riparare il sensore e chiudere il ticket.
+		\item \textbf{Dashboard Admin}: Può visualizzare tutti gli utenti e può leggere lo storico delle misurazioni. Sempre mediante una richiesta y/n sarà chiesto se si desidera bloccare un utente oppure aprire un ticket per un sensore.
+		\item \textbf{Dashboard Maintainer}: Visualizza ticket aperti, quindi, con richiesta y/n, si decide se prenderne uno o meno. Può anche riparare il sensore e chiudere il ticket.
 	\end{itemize}
 	\begin{figure}[H]
 		\centering
@@ -526,17 +520,18 @@ CREATE TABLE IF NOT EXISTS "AlertRule"
 		\label{fig:navigation_diagram}
 	\end{figure}
 
+
 	\section{Implementazione}
 	\subsection{Domain Model}
 	\subsubsection{SystemUser}
 	Classe astratta che identifica un generico utilizzatore del software. Più nello specifico, è colui che può eseguire un'operazione di login mediante \texttt{email e password}.
 	\begin{itemize}
-		\item \textbf{User}: Il cliente che usufruisce del servizio come tale. Può leggere le ultime misurazioni, come può leggere lo storico delle misurazioni e può anche creare delle \textbf{alert rules} personalizzate.
-		\item \textbf{Admin}: L'amministratore del sistema, nonché la figura con i privilegi più elevati. Può bloccare gli utenti e può aprire manualmente un ticket di manutenzione se, in seguito ad una lettura dei dati da lui eseguita, risultano essere presenti dei valori anomali nei vari sensori, il sensore in questione sarà da lui settato nello stato \texttt{SensorState.FAULTY}.
+		\item \textbf{User}: Il cliente che usufruisce del servizio come tale. Può leggere le ultime misurazioni, come può leggere lo storico delle misurazioni e può anche creare delle \textbf{Alert Rules} personalizzate.
+		\item \textbf{Admin}: L'amministratore del sistema, nonché la figura con i privilegi più elevati. Può bloccare gli utenti e può aprire manualmente un ticket di manutenzione se, in seguito ad una lettura dei dati da lui eseguita, risultano essere presenti dei valori anomali nei vari sensori, il sensore in questione sarà settato automaticamente nello stato \texttt{SensorState.FAULTY}.
 		\item \textbf{Maintainer}: La figura che può acquisire i ticket di manutenzione, quindi intervenire sui sensori segnalati. Se un sensore viene riparato lo resetta nello stato \texttt{SensorState.ACTIVE}, altrimenti ne aggiungerà uno nuovo impostando permanentemente a \texttt{SensorState.DEACTIVATED} quello guasto.
 	\end{itemize}
 	\subsubsection{Notification}
-	Classe che rappresenta l'oggetto che sarà inviato all'User la cui alert rule è appena stata violata dalle nuove misurazioni. Tra i campi, possiede il flag \texttt{isRead} che, finché sarà \texttt{false}, farà sì che la notifica in questione appaia all'utente nel contenitore delle notifiche non lette.
+	Classe che rappresenta l'oggetto che sarà inviato allo User la cui Alert Rule è appena stata violata dalle nuove misurazioni. Tra i campi, possiede il flag \texttt{isRead} che, finché sarà \texttt{false}, farà sì che la notifica in questione appaia all'utente nel contenitore delle notifiche non lette.
 	\subsubsection{Measurement}
 	Classe che identifica una misurazione di un sensore. Sarà quindi specificato l'id del sensore da cui è stata eseguita e il valore della misurazione. Per sapere quale sia la grandezza fisica misurata è necessario accedere alla tabella dei sensori mediante il campo \texttt{sensorId}. ATTENZIONE: le misurazioni potrebbero riportare valori sballati a causa di guasti ai sensori.
 	\subsubsection{Ticket}
@@ -556,20 +551,20 @@ CREATE TABLE IF NOT EXISTS "AlertRule"
 	\subsubsection{AdminDatabaseController}
 	Classe usata principalmente nel testing che ha i metodi per creare la base dati, creare le istanze di default e resettare a zero il database. I metodi della classe altro non fanno che leggere i file della cartella Resources, quindi eseguire il codice in essi contenuto. NOTA: questa è l'unica classe che fa eccezione alla descrizione generale del paragrafo precendente, infatti non sono presenti oggetti DAO.
 	\subsubsection{AdminController}
-	Classe che implementa i metodi \texttt{readDataHistory(...)}, con la possibilità di leggere i dati relativi o a un sensore specifico o a tutti i sensori, \texttt{viewUsers()} per vedere tutti gli utenti iscritti e \texttt{blockUser(int userId)} per bloccare un determinato utente. Infine \texttt{openTicket(int sensorId)} per aprire manualmente un ticket per un relativo sensore. In merito a quest'ultimo.
+	Classe che implementa i metodi \texttt{readDataHistory(...)}, con la possibilità di leggere i dati relativi o a un sensore specifico o a tutti i sensori, \texttt{viewUsers()} per vedere tutti gli utenti iscritti e \texttt{blockUser(int userId)} per bloccare un determinato utente. Infine \texttt{openTicket(int sensorId)} per aprire manualmente un ticket per un sensore.
 	\subsubsection{MaintainerController}
 	Troviamo i metodi \texttt{viewOpenTickets(), takeTicket(), closeTicket()} che permettono di selezionare un ticket disponibile, quindi acquisirlo se non è già stato preso. La chiusura avverrà solo in seguito alla riparazione o sostituzione di un sensore, ad opera rispettivamente delle funzioni \texttt{repairSensor(Double reapairChance, int ticketId) e changeSensor(int ticketId)}. Le funzioni sono simulate probabilisticamente mediante la variabile repairChance. NOTA: in alcune di queste funzioni è necessario passare il maintainerId, tale compito è attribuito al Main che salva in memoria il maintainer attualmente loggato (quindi ha accesso al suo id).
 	\subsubsection{SystemMonitor}
 	Il SystemMonitor è un thread parallelo al Main il cui metodo \texttt{run()} (opportunamente sovrascritto dalla classe base Thread) svolge in automatico la funzione di controllo del valore registrato dai sensori mediante la funzione \texttt{checkSensorValues(int sensorId)}, qualora non risultasse ok (output false) il thread aprirà un ticket per tale sensore. Nel paragrafo successivo sarà detto qualcosa in più sulla sincronizzazione tra i thread SystemMonitor e SensorManager.
 	\subsubsection{SensorManager – D. P. Observer}
-	Il SensorManager è l'altro thread menzionato nel paragrafo del System Monitor. Questa classe \texttt{estende la classe astratta Observable} e, assieme a SensorMonitor, va a implementare il design pattern observer del software. Il suo \texttt{run()} è l'unico metodo del software che aziona i sensori, consentendo loro di misurare tramite il metodo \texttt{measure()}. La misura viene poi opportunamente salvata nel database. Il thread invoca il metodo \texttt{notifyObservers(...)} per propagare l'Id della misurazione e il tipo di sensore al SensorMonitor, cosicché questo possa eseguire a sua volta il suo \texttt{update(...)} (vedi paragrafo successivo) . La sincronizzazione tra questi due thread è realizzata mediante la classe \textbf{DatabaseMutex}, essa in realtà contiene solo un \texttt{Semaphore(1)} come attributo statico. I due thread prima di agire devono eseguire l'acquire di tale mutex. La logica è che nel mentre i sensori vengono controllati non possano eseguire ulteriori misurazioni, che sarebbero a loro volta errate in caso di guasto.
+	Questa classe \texttt{estende la classe astratta Observable e implementa l'interfaccia Runnable}  e, assieme a SensorMonitor, va a implementare il design pattern observer del software. Il suo \texttt{run()} è l'unico metodo del software che aziona i sensori, consentendo loro di misurare tramite il metodo \texttt{measure()}. La misura viene poi opportunamente salvata nel database. Il thread invoca il metodo \texttt{notifyObservers(...)} per propagare l'Id della misurazione e il tipo di sensore al SensorMonitor, cosicché questo possa eseguire a sua volta il suo \texttt{update(...)} (vedi paragrafo successivo) . La sincronizzazione tra questi due thread è realizzata mediante la classe \textbf{DatabaseMutex}, essa in realtà contiene solo un \texttt{Semaphore(1)} come attributo statico. I due thread prima di agire devono eseguire l'acquire di tale mutex. La logica è che nel mentre i sensori vengono controllati non possano eseguire ulteriori misurazioni, che sarebbero a loro volta errate in caso di guasto.
 
 
 	\subsubsection{SensorMonitor – D. P. Observer}
 	Classe che \texttt{implementa l'interfaccia Observer}. Il suo metodo \texttt{update(...)} si occupa di creare e inserire nel database le notifiche scaturite in seguito alla violazione di un bound di una AlertRule per una certa grandezza fisica. La verifica è effettuata mediante il metodo \texttt{verifyAlertRule(...)}.
 
 	\subsubsection{UserController}
-	Classe che definisce cosa un cliente iscritto e non bloccato può fare. Può leggere le misurazioni con \texttt{readData(...) e readDataHistory(...)}. Può settare una nuova alert rule personalizzata mediante \texttt{setAlertRule(...)}, un appunto che si può fare in merito a tale funzione è che è stata realizzata in modo da consentire di imporre sia un intervallo di tolleranza che solamente un limite inferiore o superiore per le misurazioni. Ad esempio, si può imporre di essere avvisati sia che la temperatura T sia solo $T<20$ che sia solo $T>30$ o che sia l'uno o l'altro. Il cliente può inoltre leggere le notifiche non lette o direttamente lo storico delle notifiche con i metodi \texttt{viewUnreadNotification(...) e viewNotificationHistory(...)}.
+	Classe che definisce cosa un cliente iscritto e non bloccato può fare. Può leggere le misurazioni con \texttt{readData(...) e readDataHistory(...)}. Può settare una nuova alert rule personalizzata mediante \texttt{setAlertRule(...)}, un appunto che si può fare in merito a tale funzione è che è stata realizzata in modo da consentire di imporre sia un intervallo di tolleranza che solamente un limite inferiore o superiore per le misurazioni. Ad esempio, si può imporre di essere avvisati sia quando la temperatura T è solo $T<20$, che quando è solo $T>30$ oppere qaundo è l'uno o l'altro. Il cliente può inoltre leggere le notifiche non lette ed eventualmente lo storico delle notifiche con i metodi \texttt{viewUnreadNotification(...) e viewNotificationHistory(...)}.
 	\subsubsection{StaffLoginController}
 	Classe che contiene i metodi \texttt{adminLogin(String email, String password) e maintainerLogin(String email, String password)}, i login dello staff appunto. Si rende evidente che questo software adotta la procedura di login mediante le credenziali email e password.
 	\subsubsection{UserLoginController}
@@ -577,7 +572,7 @@ CREATE TABLE IF NOT EXISTS "AlertRule"
 
 	\subsection{ORM}
 	\subsubsection{DatabaseManager e interfaccia AutoClosable}
-	DatabaseManager è la classe che si occupa di fornire la connessione al nostro database. La logica di connessione al database è centralizzata in questa unica classe, infatti i parametri d'accesso sono tenuti solamente qui. La connessione è restituita mediante il metodo \texttt{getConnection(...)} come oggetto di tipo Connection. Nei vari metodiDAO la Connection sarà chiusa in automatico al termine del codice di ognuno di essi grazie all'implementazione dell'interfaccia AutoClosable, in merito a ciò può notare come ogni oggetto DAO sia inizializzato nel blocco resources dei vari try al fine di consentire il corretto funzionamento di tale maccanica.
+	DatabaseManager è la classe che si occupa di fornire la connessione al nostro database. La logica di connessione al database è centralizzata in questa unica classe, infatti i parametri d'accesso sono tenuti solamente qui. La connessione è restituita mediante il metodo \texttt{getConnection(...)} come oggetto di tipo Connection. Nei vari metodiDAO la Connection sarà chiusa in automatico al termine del codice di ognuno di essi grazie all'implementazione dell'interfaccia AutoClosable. In merito a ciò può notare come ogni oggetto DAO sia inizializzato nel blocco resources dei vari try al fine di consentire il corretto funzionamento di tale maccanica.
 	\subsubsection{AdminDAO e MaintainerDAO}
 	Contengono il metodo \texttt{login(...)} per ottenere la relativa istanza dal db. La classe AdminDAO contiene inoltre i metodi per creare e resettare il db, nonché inizializzarlo con le istanze di default.
 	\subsubsection{AlertRuleDAO}
@@ -585,9 +580,9 @@ CREATE TABLE IF NOT EXISTS "AlertRule"
 	\subsubsection{MeasurementDAO}
 	Similmente alla precedente AlertRuleDAO, c'è un metodo \texttt{addMeasurement(...)} per l'inserimento di nuove misure e un metodo \texttt{getMeasurement(...)} che può prendere in ingresso o soltanto la solita generica \texttt{Map<String, Object>} oppure, oltre a questa, anche un intervallo di date che definiranno l'intervallo temporale di cui si desidera leggere le misure effettuate dai sensori.
 	\subsubsection{NotificationDAO}
-	Qui è presente il metodo \texttt{registerNotification(...)} che inserisce una nuova notifca nel db. Ci sono i metodi \texttt{viewUnreadNotification(...), viewNotificationHistory(int userId, int lastDays)} che filtrano la lettura delle notifiche rispettivamente per avvenuta lettura o meno e se sono risalenti a non più di \texttt{lastDays} giorni fa. In seguito alla chiamata di \texttt{viewUnreadNotification(...)} da parte di UserController, ci sarà anche una chiamata al metodo \texttt{setRead()} che setterà a true il campo isRead della tupla relativa alla notifica appena letta.
+	Qui è presente il metodo \texttt{registerNotification(...)} che inserisce una nuova notifca nel db. Ci sono i metodi \texttt{viewUnreadNotification(...), viewNotificationHistory(int userId, int lastDays)} che filtrano la lettura delle notifiche rispettivamente per avvenuta lettura o meno e se sono risalenti a non più di \texttt{lastDays} giorni fa. In seguito alla chiamata di \texttt{viewUnreadNotification(...)} da parte di UserController, ci sarà anche una chiamata al metodo \texttt{setRead()} che setterà a true il campo isRead delle tuple relative alle notifiche appena lette.
 	\subsubsection{SensorDAO}
-	Ci sono due metodi per eseguire una select dei sensori: il metodo \texttt{getSensors(Map<String. Object> map)} e \texttt{getSensorByState(SensorState sensorState)}. A causa della gerarchia ereditaria, con conseguente presenza di diversi costruttori per ogni sensore, si è reso necessario uno switch-cases a seconda del tipo di sensore. Vi è poi il metodo \texttt{changeSensorState(int sensorID, SensorState newState)} che si occupa di modificare lo status di un sensore in seguito a qualche evento: l'apertura di un ticket fa sì che un sensorState venga settato a FAULTY, la riparazione lo fa tornare nello stato ACTIVE, mentre la sostituzione lo rende permanentemente DEACTIVATED. L'inserimento di un nuovo sensore è consentito dal metodo \texttt{addSensor(...)}. Non esiste un metodo per la rimozione dei sensori: i sensori DEACTIVATED rimangono nel database come tali al fine non creare tuple orfane all'interno del databse stesso, l'id del sensore è infatti chiave esterna di alcune tabelle. Infine abbiamo il metodo \texttt{updateLastMeasurement(...)} che modifica l'id dell'ultima misura effettuata da un sensore, tale metodo è ovviamente chiamato al momento della misura del sensore stesso.
+	Ci sono due metodi per eseguire una select dei sensori: il metodo \texttt{getSensors(Map<String. Object> map)} e \texttt{getSensorByState(SensorState sensorState)}. A causa della gerarchia ereditaria, con conseguente presenza di diversi costruttori per ogni sensore, si è reso necessario uno switch-cases a seconda del tipo di sensore. Vi è poi il metodo \texttt{changeSensorState(int sensorID, SensorState newState)} che si occupa di modificare lo status di un sensore in seguito a qualche evento: l'apertura di un ticket fa sì che un sensorState venga settato a FAULTY, la riparazione lo fa tornare nello stato ACTIVE, mentre la sostituzione lo rende permanentemente DEACTIVATED. L'inserimento di un nuovo sensore è consentito dal metodo \texttt{addSensor(...)}. Non esiste un metodo per la rimozione dei sensori: i sensori DEACTIVATED rimangono nel database come tali al fine non creare tuple orfane all'interno del databse stesso. L'id del sensore è infatti chiave esterna di alcune tabelle. Infine abbiamo il metodo \texttt{updateLastMeasurement(...)} che modifica l'id dell'ultima misura effettuata da un sensore, tale metodo è ovviamente chiamato al momento della misura del sensore stesso.
 	\begin{lstlisting}
     try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -611,13 +606,14 @@ CREATE TABLE IF NOT EXISTS "AlertRule"
             }
 	\end{lstlisting}
 	\subsubsection{TicketDAO}
-	Per inserire nuovi ticket c'è \texttt{addTicket(...)}, in ordine poi abbiamo \texttt{getOpenTicket(), takeTicket(...), closeTicket(...)} per le rispettive azioni. Vi è inoltre il metodo \texttt{getSensorIdByTicket(...)}, usato nel MaintainerController, questo perché tramite un ticket è possibile risalire al sensore guasto, vedi schema relazionale.
+	Per inserire nuovi ticket c'è \texttt{addTicket(...)}, in ordine poi abbiamo \texttt{getOpenTicket(), takeTicket(...), closeTicket(...)} per le rispettive azioni. Vi è inoltre il metodo \texttt{getSensorIdByTicket(...)}, usato nel MaintainerController. Questo perché tramite un ticket è possibile risalire al sensore guasto, vedi schema relazionale.
 	\subsubsection{UserDAO}
 	Il metodo \texttt{getUsers(Map<String, Object> map)} esegue una select degli utenti col solito criterio della mappa. Ci sono poi i metodi per la registrazione e il login e il metodo \texttt{blockUser(int userId)} per settare a true il campo isBlocked nella tabella User.
 
 	\section{Testing}
-	In quest'ultima sezione sono presenti snippet di codice che mostrano come sono stati realizzati alcuni test.
+	In quest'ultima sezione sono presenti snippet di codice che mostrano come sono stati realizzati alcuni test. I test effettuati riguardano le funzioni associati agli Use Cases del software, quindi principalmente il Package della BusinessLogic.
 	\subsection{Business Logic Test}
+	Molti dei test effettuati per questo package hanno più versioni dello stesso metodo in modo da verificare ogni possibile esito verificabile, successo o fallimento che sia. I fallimenti sono stati testati per verificare il corretto funzionamento della gestione degli errori.
 	\subsubsection{AdminControllerTest}
 	\begin{lstlisting}
       @Test
@@ -872,6 +868,7 @@ CREATE TABLE IF NOT EXISTS "AlertRule"
     }
 	\end{lstlisting}
 	\subsection{Domain Model}
+	Di questo package è stato realizzato sollo il testing per il metodo \texttt{isViolatedBy(...)} della classe AlertRule, che verifica se una misurazione ha violato i suoi bound.
 	\subsubsection{AlertRuleTest}
 	\begin{lstlisting}
       @Test
